@@ -35,7 +35,7 @@ Just draw and click **`Animate`**!
  - **Keyboard Shortcut:**  
       Press **`Ctrl+F`** to activate.
   
-![FocusModeGIF](/doodlemagic02.jpg)
+![FocusModeGIF](/focusmode.gif)
 
 
 ### 📚 Interactive Animation Guide
@@ -47,7 +47,7 @@ Just draw and click **`Animate`**!
   Quickly find the animation you’re looking for with a search bar.
 
 
-![AnimationGuideGIF](/doodlemagic02.jpg)
+![AnimationGuideGIF](/animationguide.gif)
 
 
 ### 💾 Project & File Management
@@ -68,7 +68,7 @@ Just draw and click **`Animate`**!
 - **Polished UI:**  
   Smooth transitions and animations make the interface feel modern and responsive.
 
-![DarkModeGIF](/doodlemagic02.jpg)
+![DarkModeGIF](/darkmode.gif)
 
 
 ## 🛠️ The Development Process & Technologies
