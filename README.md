@@ -61,7 +61,7 @@ Just draw and click **`Animate`**!
 - **Dark Mode:**  
   A sleek, eye-friendly dark mode that can be toggled in the settings.
 - **Keyboard Shortcuts:**  
-  Use **`Ctrl+Z`** (Undo), **`Ctrl+Y`** (Redo), and **`Esc`** to navigate the UI quickly.
+  Use **`Ctrl+Z`** (Undo), **`Ctrl+Y`** (Redo), **`Esc`** to navigate the UI quickly and **`Ctrl+F`** to activate focus mode.
 - **Touch Support:**  
   Fully functional on touch devices.
 - **Polished UI:**  
