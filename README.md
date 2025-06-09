@@ -71,7 +71,7 @@ Just draw and click **`Animate`**!
 
 
 ## 🛠️ The Development Process & Technologies
-This project is a prime example of human-AI collaboration. The technology stack was chosen and implemented by **Gemini 2.5 Pro** based on my high-level requirements.
+The technology stack was chosen and implemented by **Gemini 2.5 Pro** based on my high-level requirements.
 - **HTML5**, **CSS3**, and modern **JavaScript (ES6+)** form the foundation of the application.
 - **Tailwind CSS:** Used via CDN to rapidly style the user interface.
 - **Self-Contained Code:** The entire application logic, styling, and structure are encapsulated within a single `index.html` file, demonstrating a lightweight, dependency-free approach.
@@ -79,3 +79,5 @@ This project is a prime example of human-AI collaboration. The technology stack 
 ## 🚀 How to Use
 1. **Open** the `index.html` file (or the website) in any modern web browser.
 2. **Start drawing!**
+
+**Created by MTDev**
