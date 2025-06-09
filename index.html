@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doodle Magic Pro</title>
+    <title>Doodle Magic</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -242,25 +242,23 @@
 <body class="flex items-center justify-center min-h-screen transition-colors overflow-hidden">
     
     <div id="focus-backdrop" class="fixed inset-0 z-30 hidden pointer-events-none opacity-0"></div>
-    <!-- Container para controles no modo de foco -->
     <div id="focus-controls-container" class="hidden">
         <div class="focus-top" id="focus-palette-container">
-            <!-- Paleta de cores será movida para cá via JS -->
-        </div>
+            </div>
         <div class="focus-bottom">
-            <button id="focus-undo-btn" title="Desfazer (Ctrl+Z)" class="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition disabled:opacity-50">
+            <button id="focus-undo-btn" title="Undo (Ctrl+Z)" class="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition disabled:opacity-50">
                 <svg class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
             </button>
-             <button id="focus-redo-btn" title="Refazer (Ctrl+Y)" class="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition disabled:opacity-50">
+             <button id="focus-redo-btn" title="Redo (Ctrl+Y)" class="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition disabled:opacity-50">
                  <svg class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
             </button>
             <button id="focus-main-action-btn" class="bg-blue-600 text-white font-semibold py-2 px-5 rounded-full shadow-md hover:bg-blue-700 transition-transform transform hover:scale-105 disabled:bg-blue-400">
-                Animar
+                Animate
             </button>
             <button id="focus-clear-btn" class="bg-red-500 text-white font-semibold py-2 px-5 rounded-full shadow-md hover:bg-red-600 transition-transform transform hover:scale-105 disabled:bg-red-300">
-                Limpar
+                Erase
             </button>
-            <button id="focus-exit-btn" title="Sair do Foco (Esc)" class="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition">
+            <button id="focus-exit-btn" title="Exit Focus (Esc)" class="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition">
                 <svg class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m7 7l5 5m0 0v-4m0 4h-4m-7-7l-5 5m0 0v-4m0 4h4" /></svg>
             </button>
         </div>
@@ -269,36 +267,36 @@
     <div id="settings-backdrop" class="fixed inset-0 bg-black bg-opacity-30 z-40 hidden"></div>
     <div id="settings-panel" class="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-md rounded-t-3xl shadow-2xl z-50 max-w-md mx-auto">
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold text-gray-800">Configurações</h2>
+            <h2 class="text-xl font-bold text-gray-800">Settings</h2>
             <button id="close-settings-btn" class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                 <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
         
         <div class="space-y-4">
-             <h3 class="text-lg font-semibold text-gray-700">Nome do Arquivo</h3>
-             <input type="text" id="doodle-filename" placeholder="meu_doodle" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+             <h3 class="text-lg font-semibold text-gray-700">File Name</h3>
+             <input type="text" id="doodle-filename" placeholder="my_doodle" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
         </div>
 
         <hr class="my-6 border-gray-200 dark:border-gray-600">
 
         <div class="space-y-4">
-            <h3 class="text-lg font-semibold text-gray-700">Exportar & Salvar</h3>
+            <h3 class="text-lg font-semibold text-gray-700">Export & Save</h3>
              <div class="grid grid-cols-2 gap-4">
                  <button id="save-png-btn" class="w-full flex items-center justify-center gap-2 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 bg-emerald-500 hover:bg-emerald-600">
-                     Salvar .PNG
+                     Save .PNG
                  </button>
                  <button id="save-doodle-btn" class="w-full flex items-center justify-center gap-2 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 bg-sky-500 hover:bg-sky-600">
-                     Salvar .doodle
+                     Save .doodle
                  </button>
              </div>
              <label for="load-doodle-input" class="cursor-pointer mt-4 w-full flex items-center justify-center gap-2 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 bg-teal-500 hover:bg-teal-600">
-                 Carregar .doodle
+                 Load .doodle
              </label>
             <input type="file" id="load-doodle-input" class="hidden" accept=".doodle">
              <div class="flex items-center justify-between pt-4">
                  <label for="autosave-toggle" class="font-semibold text-gray-700 flex items-center gap-2">
-                     <span class="text-xl">💾</span> Salvamento Automático
+                     <span class="text-xl">💾</span> Auto Save
                  </label>
                  <label class="switch">
                      <input type="checkbox" id="autosave-toggle">
@@ -307,7 +305,7 @@
              </div>
             <div class="flex items-center justify-between pt-2">
                  <label for="dark-mode-toggle" class="font-semibold text-gray-700 flex items-center gap-2">
-                     <span class="text-xl">🌙</span> Modo Escuro
+                     <span class="text-xl">🌙</span> Dark Mode
                  </label>
                  <label class="switch">
                      <input type="checkbox" id="dark-mode-toggle">
@@ -322,28 +320,27 @@
             <div class="flex justify-between items-center mb-4 flex-shrink-0">
                  <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
                      <svg class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                      Guia de Animações
+                      Animation Guide
                  </h2>
                  <button id="close-help-btn" class="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                      <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                  </button>
             </div>
             <div class="mb-4 flex-shrink-0">
-                 <input type="search" id="help-search" placeholder="Pesquisar animação..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                 <input type="search" id="help-search" placeholder="Search animations..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
             <div id="animation-guide-container" class="overflow-y-auto space-y-2 pr-2">
-                <!-- Conteúdo gerado via JS -->
-            </div>
+                </div>
         </div>
     </div>
     
     <div id="confirm-modal-backdrop" class="fixed inset-0 bg-black bg-opacity-40 z-[60] hidden items-center justify-center">
         <div id="confirm-modal" class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm mx-4 transform transition-transform duration-300 scale-95">
-            <h3 class="text-lg font-bold text-gray-800">Confirmar Ação</h3>
-            <p id="confirm-modal-text" class="text-gray-600 my-4">O canvas atual não está vazio. Deseja substituir o doodle atual? Essa ação não pode ser desfeita.</p>
+            <h3 class="text-lg font-bold text-gray-800">Confirm Action</h3>
+            <p id="confirm-modal-text" class="text-gray-600 my-4">The current canvas is not empty. Do you want to replace the current doodle? This action cannot be undone.</p>
             <div class="flex justify-end gap-4 mt-6">
-                <button id="confirm-modal-cancel" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 font-semibold">Cancelar</button>
-                <button id="confirm-modal-ok" class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-semibold">Sim, Substituir</button>
+                <button id="confirm-modal-cancel" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 font-semibold">Cancel</button>
+                <button id="confirm-modal-ok" class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-semibold">Yes, Replace</button>
             </div>
         </div>
     </div>
@@ -358,11 +355,11 @@
                  <button id="help-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-transform transform hover:scale-110 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
                      <svg class="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 6c-1.1-.6-2.4-1-4-1s-2.9.4-4 1v11c1.1-.6 2.4-1 4-1s2.9.4 4 1m0-11c1.1-.6 2.4-1 4-1s2.9.4 4 1v11c-1.1-.6-2.4-1-4-1s-2.9.4-4 1m0-11v11"/>
+                               d="M12 6c-1.1-.6-2.4-1-4-1s-2.9.4-4 1v11c1.1-.6 2.4-1 4-1s2.9.4 4 1m0-11c1.1-.6 2.4-1 4-1s2.9.4 4 1v11c-1.1-.6-2.4-1-4-1s-2.9.4-4 1m0-11v11"/>
                      </svg>
                  </button>
         </div>
-        <p class="text-center text-sm text-gray-500">Desenhe e veja a mágica acontecer.</p>
+        <p class="text-center text-sm text-gray-500">Draw and watch the magic happen.</p>
         
         <div id="palette-container" class="flex justify-center items-center space-x-2 p-2">
             <div id="color-palette" class="flex items-center space-x-2 rounded-lg"></div>
@@ -374,23 +371,23 @@
         </div>
 
         <button id="toggle-tools-btn" class="w-full mt-4 py-2 px-4 bg-white dark:bg-white-700 rounded-lg text-sm text-gray-600 font-semibold flex items-center justify-center gap-2">
-            Ferramentas
+            Tools
             <svg id="tools-arrow" class="w-4 h-4 transition-transform transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
         </button>
         
         <div id="tools-area" class="space-y-2">
             <div class="flex justify-between items-center space-x-2 pt-2">
                 <div class="flex items-center space-x-1">
-                    <input id="brush-size" type="range" min="4" max="24" value="8" class="w-20 accent-blue-600 disabled:opacity-50" title="Tamanho do Pincel">
+                    <input id="brush-size" type="range" min="4" max="24" value="8" class="w-20 accent-blue-600 disabled:opacity-50" title="Brush Size">
                     <span id="brush-size-label" class="text-xs text-gray-500">8</span>
                 </div>
-                <button id="undo-btn" title="Desfazer (Ctrl+Z)" class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition disabled:opacity-50">
+                <button id="undo-btn" title="Undo (Ctrl+Z)" class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition disabled:opacity-50">
                     <svg class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <button id="redo-btn" title="Refazer (Ctrl+Y)" class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition disabled:opacity-50">
+                <button id="redo-btn" title="Redo (Ctrl+Y)" class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition disabled:opacity-50">
                      <svg class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                 </button>
-                 <button id="focus-mode-btn" title="Modo Foco (Ctrl+F)" class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition">
+                 <button id="focus-mode-btn" title="Focus Mode (Ctrl+F)" class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition">
                      <svg class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m7-7v4m0 0h-4m4-4l-5 5m-7 8v4m0 0h4m-4 0l5-5m7 7v-4m0 4h-4m4-4l-5-5" /></svg>
                  </button>
             </div>
@@ -399,10 +396,10 @@
 
         <div class="grid grid-cols-2 gap-4 mt-4">
             <button id="main-action-button" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-transform transform hover:scale-105 disabled:bg-blue-400 disabled:transform-none disabled:cursor-not-allowed">
-                Animar
+                Animate
             </button>
             <button id="clear-button" class="w-full bg-red-500 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 transition-transform transform hover:scale-105 disabled:bg-red-300 disabled:transform-none disabled:cursor-not-allowed">
-                Limpar
+                Erase
             </button>
         </div>
         
@@ -496,21 +493,21 @@ window.addEventListener('load', () => {
     const ORANGE_COLOR = '#f97316';
     
     const ANIMATION_GUIDE_DATA = {
-        "Emotivas 💖": [
-            { id: 'heart', name: "Coração Pulsante", emoji: "💖", desc: "Desenhe um ou mais corações com cores quentes para vê-los bater.", previewDraw: () => autoDrawShape([{ x: 0.5, y: 0.4, w: 0.4, h: 0.4, type: 'heart', color: RED_COLOR }]) },
-            { id: 'stars', name: "Céu Estrelado", emoji: "✨", desc: "Desenhe pequenas formas amarelas ou cinzas para criar um céu noturno cintilante.", previewDraw: () => autoDrawShape([{ x: 0.2, y: 0.3, w: 0.05, h: 0.05, type: 'star', color: YELLOW_COLOR }, { x: 0.7, y: 0.2, w: 0.05, h: 0.05, type: 'star', color: YELLOW_COLOR }, { x: 0.5, y: 0.6, w: 0.05, h: 0.05, type: 'star', color: GRAY_COLOR }]) }
+        "Emotive 💖": [
+            { id: 'heart', name: "Beating Heart", emoji: "💖", desc: "Draw one or more warm-colored hearts to see them beat.", previewDraw: () => autoDrawShape([{ x: 0.5, y: 0.4, w: 0.4, h: 0.4, type: 'heart', color: RED_COLOR }]) },
+            { id: 'stars', name: "Starry Sky", emoji: "✨", desc: "Draw small yellow or gray shapes to create a twinkling night sky.", previewDraw: () => autoDrawShape([{ x: 0.2, y: 0.3, w: 0.05, h: 0.05, type: 'star', color: YELLOW_COLOR }, { x: 0.7, y: 0.2, w: 0.05, h: 0.05, type: 'star', color: YELLOW_COLOR }, { x: 0.5, y: 0.6, w: 0.05, h: 0.05, type: 'star', color: GRAY_COLOR }]) }
         ],
-        "Naturais 🌤️": [
-            { id: 'rain', name: "Chuva Suave", emoji: "💧", desc: "Desenhe múltiplos traços verticais para fazer chover sobre seu doodle.", previewDraw: () => autoDrawShape([{x:0.2, y:0.4, w:0.02, h:0.2, type:'line', color: BLUE_COLOR}, {x:0.5, y:0.4, w:0.02, h:0.2, type:'line', color: BLUE_COLOR}, {x:0.8, y:0.4, w:0.02, h:0.2, type:'line', color: BLUE_COLOR}]) },
-            { id: 'flowers', name: "Flores Dançantes", emoji: "🌸", desc: "Crie caules verdes com pétalas coloridas no topo. Elas balançarão com a brisa.", previewDraw: () => autoDrawShape([{x:0.5, y:0.7, w:0.03, h:0.4, type:'line', color: GREEN_COLOR}, {x:0.5, y:0.3, w:0.2, h:0.2, type:'circle', color: PINK_COLOR}]) },
-            { id: 'fire', name: "Fogo Crepitante", emoji: "🔥", desc: "Faça formas pontudas e verticais na parte de baixo do canvas com cores de fogo.", previewDraw: () => autoDrawShape([{x:0.5, y:0.8, w:0.1, h:0.3, type:'line', color: ORANGE_COLOR}, {x:0.4, y:0.8, w:0.1, h:0.2, type:'line', color: RED_COLOR}, {x:0.6, y:0.8, w:0.1, h:0.25, type:'line', color: YELLOW_COLOR}]) },
-            { id: 'sea', name: "Mar Ondulante", emoji: "🌊", desc: "Desenhe linhas horizontais onduladas com a cor azul.", previewDraw: () => autoDrawShape([{ x: 0.5, y: 0.8, w: 0.9, h: 0.1, type: 'wave', color: BLUE_COLOR }]) },
+        "Natural 🌤️": [
+            { id: 'rain', name: "Gentle Rain", emoji: "💧", desc: "Draw multiple vertical strokes to make it rain on your doodle.", previewDraw: () => autoDrawShape([{x:0.2, y:0.4, w:0.02, h:0.2, type:'line', color: BLUE_COLOR}, {x:0.5, y:0.4, w:0.02, h:0.2, type:'line', color: BLUE_COLOR}, {x:0.8, y:0.4, w:0.02, h:0.2, type:'line', color: BLUE_COLOR}]) },
+            { id: 'flowers', name: "Dancing Flowers", emoji: "🌸", desc: "Create green stems with colorful petals on top. They'll sway in the breeze.", previewDraw: () => autoDrawShape([{x:0.5, y:0.7, w:0.03, h:0.4, type:'line', color: GREEN_COLOR}, {x:0.5, y:0.3, w:0.2, h:0.2, type:'circle', color: PINK_COLOR}]) },
+            { id: 'fire', name: "Crackling Fire", emoji: "🔥", desc: "Make pointed vertical shapes at the bottom of the canvas in fiery colors.", previewDraw: () => autoDrawShape([{x:0.5, y:0.8, w:0.1, h:0.3, type:'line', color: ORANGE_COLOR}, {x:0.4, y:0.8, w:0.1, h:0.2, type:'line', color: RED_COLOR}, {x:0.6, y:0.8, w:0.1, h:0.25, type:'line', color: YELLOW_COLOR}]) },
+            { id: 'sea', name: "Wavy Sea", emoji: "🌊", desc: "Draw horizontal wavy lines in blue.", previewDraw: () => autoDrawShape([{ x: 0.5, y: 0.8, w: 0.9, h: 0.1, type: 'wave', color: BLUE_COLOR }]) },
         ],
-        "Objetos 🪄": [
-            { id: 'balloons', name: "Balões Flutuantes", emoji: "🎈", desc: "Desenhe círculos coloridos com uma linha preta ou cinza saindo de baixo.", previewDraw: () => autoDrawShape([{x:0.5, y:0.4, w:0.2, h:0.2, type:'circle', color: RED_COLOR}, {x:0.5, y:0.6, w:0.01, h:0.2, type:'line', color: BLACK_COLOR}]) },
-            { id: 'boat', name: "Barco na Água", emoji: "⛵", desc: "Desenhe um casco de barco sobre algumas linhas azuis na parte de baixo do canvas.", previewDraw: () => autoDrawShape([{x:0.5, y:0.8, w:0.8, h:0.05, type:'wave', color: BLUE_COLOR}, {x:0.5, y:0.6, w:0.4, h:0.2, type:'rect', color: ORANGE_COLOR}]) },
-            { id: 'ghost', name: "Fantasma Flutuante", emoji: "👻", desc: "Um corpo cinza com olhos pretos dentro. Ele flutuará e desaparecerá.", previewDraw: () => autoDrawShape([{x:0.5, y:0.5, w:0.4, h:0.5, type:'rect', color: GRAY_COLOR}, {x:0.4, y:0.4, w:0.05, h:0.05, type:'circle', color: BLACK_COLOR}, {x:0.6, y:0.4, w:0.05, h:0.05, type:'circle', color: BLACK_COLOR}]) },
-            { id: 'ball', name: "Bola Quicando", emoji: "🏀", desc: "Desenhe um círculo com qualquer cor para vê-lo quicar.", previewDraw: () => autoDrawShape([{ x: 0.5, y: 0.3, w: 0.2, h: 0.2, type: 'circle', color: ORANGE_COLOR }]) },
+        "Objects 🪄": [
+            { id: 'balloons', name: "Floating Balloons", emoji: "🎈", desc: "Draw colorful circles with a black or gray line coming from the bottom.", previewDraw: () => autoDrawShape([{x:0.5, y:0.4, w:0.2, h:0.2, type:'circle', color: RED_COLOR}, {x:0.5, y:0.6, w:0.01, h:0.2, type:'line', color: BLACK_COLOR}]) },
+            { id: 'boat', name: "Boat on Water", emoji: "⛵", desc: "Draw a boat hull above some blue lines at the bottom of the canvas.", previewDraw: () => autoDrawShape([{x:0.5, y:0.8, w:0.8, h:0.05, type:'wave', color: BLUE_COLOR}, {x:0.5, y:0.6, w:0.4, h:0.2, type:'rect', color: ORANGE_COLOR}]) },
+            { id: 'ghost', name: "Floating Ghost", emoji: "👻", desc: "A gray body with black eyes inside. It will float and disappear.", previewDraw: () => autoDrawShape([{x:0.5, y:0.5, w:0.4, h:0.5, type:'rect', color: GRAY_COLOR}, {x:0.4, y:0.4, w:0.05, h:0.05, type:'circle', color: BLACK_COLOR}, {x:0.6, y:0.4, w:0.05, h:0.05, type:'circle', color: BLACK_COLOR}]) },
+            { id: 'ball', name: "Bouncing Ball", emoji: "🏀", desc: "Draw a circle in any color to see it bounce.", previewDraw: () => autoDrawShape([{ x: 0.5, y: 0.3, w: 0.2, h: 0.2, type: 'circle', color: ORANGE_COLOR }]) },
         ]
     };
     
@@ -596,13 +593,13 @@ window.addEventListener('load', () => {
         } else if (allDrawings.length > 0) {
             analyzeAndAnimate();
         } else {
-            showMessage('Desenhe algo primeiro para animar!');
+            showMessage('Draw something first to animate!');
         }
     }
     
     function analyzeAndAnimate(animationId = null) {
         animationState = 'ANALYZING';
-        if (!isPreviewing) showMessage('Analisando seu doodle...');
+        if (!isPreviewing) showMessage('Analyzing your doodle...');
         const allDrawings = getCurrentDrawing();
         
         setTimeout(() => { 
@@ -621,21 +618,21 @@ window.addEventListener('load', () => {
                 if (typeof animationSetups[activeAnimation] === 'function') {
                     animationSetups[activeAnimation]();
                     animationState = 'ANIMATING';
-                    mainButton.textContent = "Parar Animação";
-                    focusMainActionBtn.textContent = "Parar";
+                    mainButton.textContent = "Stop";
+                    focusMainActionBtn.textContent = "Stop";
                     dtx.clearRect(0, 0, doodleCanvas.width, doodleCanvas.height);
-                    if (!isPreviewing) showMessage('Animação aplicada!');
+                    if (!isPreviewing) showMessage('Animation applied!');
                     animationTime = 0;
                     masterLoop();
                 } else {
                     animationState = 'IDLE';
-                    if (!isPreviewing) showMessage('Erro ao iniciar a animação.');
+                    if (!isPreviewing) showMessage('Error starting animation.');
                     redrawCanvas();
                 }
             } else {
                 animationState = 'IDLE';
                 activeAnimation = null; 
-                if (!isPreviewing) showMessage('Não reconheci as formas. Tente de novo.');
+                if (!isPreviewing) showMessage("I didn't recognize the shapes. Try again.");
                 redrawCanvas();
                 if (isPreviewing) stopPreview();
             }
@@ -647,8 +644,8 @@ window.addEventListener('load', () => {
         masterAnimationFrameId = null;
         actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height);
         animationState = 'IDLE';
-        mainButton.textContent = "Animar";
-        focusMainActionBtn.textContent = "Animar";
+        mainButton.textContent = "Animate";
+        focusMainActionBtn.textContent = "Animate";
         if (!isPreviewing && !document.body.classList.contains('focus-mode')) {
             messageBox.classList.add('hidden');
         }
@@ -669,7 +666,6 @@ window.addEventListener('load', () => {
     function isStars(s) { if (s.length < 4) return false; const t = [YELLOW_COLOR, GRAY_COLOR]; let a = 0, m = 0; s.forEach(k => { if (t.includes(k.color)) a++; const b = getStrokeBounds(k); if (b.width < 25 && b.height < 25) m++; }); return (a / s.length > 0.7) && (m / s.length > 0.7); }
     function isHeart(s) { const heartColors = [RED_COLOR, PINK_COLOR]; const heartStrokes = s.filter(t => heartColors.includes(t.color)); if (heartStrokes.length === 0) return []; if (heartStrokes.length / s.length < 0.8) { return []; } const bounds = heartStrokes.map(getStrokeBounds).reduce(mergeBounds); if (bounds.width < 30 || bounds.height < 30) return []; const aspectRatio = bounds.width / bounds.height; if (aspectRatio > 1.6 || aspectRatio < 0.6) { return []; } return heartStrokes; }
     
-    // CORRECTED: Merged the best logic from both versions.
     function isBalloons(s) {
         const pairs = [];
         if (s.length < 2) return pairs;
@@ -716,11 +712,10 @@ window.addEventListener('load', () => {
         rain: () => { particles = []; redrawCanvas(); let originalDrawingDataForRain = dtx.getImageData(0,0,doodleCanvas.width,doodleCanvas.height); dtx.clearRect(0,0,doodleCanvas.width,doodleCanvas.height); particles.push({type: 'rain_bg', data: originalDrawingDataForRain}); for(let i=0; i<150; i++) particles.push({ type: 'rain_drop', x: Math.random()*animationCanvas.width, y: Math.random()*animationCanvas.height, l: 5+Math.random()*15, s: 3+Math.random()*5 }); },
         fire: () => { particles = []; const allDrawings = getCurrentDrawing(); let b = getStrokeBounds(allDrawings[0]); allDrawings.forEach(s => b = mergeBounds(b, getStrokeBounds(s))); for (let i=0; i<150; i++) particles.push({ x: b.x + Math.random() * b.width, y: b.y + b.height * 0.8 + Math.random() * b.height * 0.2, sz: 5 + Math.random()*15, sy: -0.5 - Math.random()*1.5, sx: Math.random()*2-1, l: 1, type: 'fire_particle' }); particles.push({type: 'fire_base', strokes: allDrawings}); },
         stars: () => { particles = []; const isDark = document.documentElement.classList.contains('dark'); document.documentElement.style.backgroundColor = isDark ? '#0c1445' : '#000035'; getCurrentDrawing().forEach(s => { const b = getStrokeBounds(s); particles.push({ x: b.x + b.width / 2, y: b.y + b.height / 2, c: s.color, sz: 2 + Math.max(b.width, b.height) / 2, o: 0.5 + Math.random()*0.5, od: -1, sh: Math.random()<0.1, vx: 20*(Math.random()-0.5), vy: 20*(Math.random()-0.5) }); }); },
-        flowers: () => { particles = []; const allDrawings = getCurrentDrawing(); const stems = allDrawings.filter(k=>k.color===GREEN_COLOR&&getStrokeBounds(k).height>20), blossoms = allDrawings.filter(k=>k.color!==GREEN_COLOR), usedBlossoms=new Set; stems.forEach(stem=>{const stemBounds=getStrokeBounds(stem), stemTop={x:stemBounds.x+stemBounds.width/2, y:stemBounds.y}, attachedBlossoms=[]; blossoms.forEach((blossom, index)=>{if(usedBlossoms.has(index)) return; const blossomBounds=getStrokeBounds(blossom), blossomCenter={x:blossomBounds.x+blossomBounds.width/2, y:blossomBounds.y+blossomBounds.height/2}; if(blossomBounds.y+blossomBounds.height < stemBounds.y + 0.5*stemBounds.height && Math.hypot(blossomCenter.x-stemTop.x, blossomCenter.y-stemTop.y) < 80) { attachedBlossoms.push(blossom); usedBlossoms.add(index); } }); if(attachedBlossoms.length > 0) particles.push({stemStroke:stem, blossomStrokes:attachedBlossoms, timeOffset:1e3*Math.random()}); }); if(particles.length === 0) { stopAnimation(); showMessage("Não foi possível identificar as flores."); } },
+        flowers: () => { particles = []; const allDrawings = getCurrentDrawing(); const stems = allDrawings.filter(k=>k.color===GREEN_COLOR&&getStrokeBounds(k).height>20), blossoms = allDrawings.filter(k=>k.color!==GREEN_COLOR), usedBlossoms=new Set; stems.forEach(stem=>{const stemBounds=getStrokeBounds(stem), stemTop={x:stemBounds.x+stemBounds.width/2, y:stemBounds.y}, attachedBlossoms=[]; blossoms.forEach((blossom, index)=>{if(usedBlossoms.has(index)) return; const blossomBounds=getStrokeBounds(blossom), blossomCenter={x:blossomBounds.x+blossomBounds.width/2, y:blossomBounds.y+blossomBounds.height/2}; if(blossomBounds.y+blossomBounds.height < stemBounds.y + 0.5*stemBounds.height && Math.hypot(blossomCenter.x-stemTop.x, blossomCenter.y-stemTop.y) < 80) { attachedBlossoms.push(blossom); usedBlossoms.add(index); } }); if(attachedBlossoms.length > 0) particles.push({stemStroke:stem, blossomStrokes:attachedBlossoms, timeOffset:1e3*Math.random()}); }); if(particles.length === 0) { stopAnimation(); showMessage("Couldn't identify the flowers."); } },
         boat: () => { particles = []; const allDrawings = getCurrentDrawing(); particles.push({ water: allDrawings.filter(k => k.color === BLUE_COLOR), boat: allDrawings.filter(k => k.color !== BLUE_COLOR), time: 0 }); },
         ghost: () => { particles = []; const allDrawings = getCurrentDrawing(); particles.push({ body: allDrawings.find(k => k.color === GRAY_COLOR), eyes: allDrawings.filter(k => k.color === BLACK_COLOR), time: 0 }); },
         heart: () => { particles = []; isHeart(getCurrentDrawing()).forEach(o => { particles.push({ stroke: o, time: 100 * Math.random() }) }); },
-        // CORRECTED: Replaced with the simpler, working ball animation logic from CÓDIGO 1
         ball: () => {
             particles = [];
             const allDrawings = getCurrentDrawing();
@@ -745,7 +740,6 @@ window.addEventListener('load', () => {
     };
     
     const animationSteps = {
-        // CORRECTED: Fixed bug with `splice` inside `forEach`
         balloons: () => {
             actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height);
             particles = particles.filter(p => {
@@ -769,7 +763,6 @@ window.addEventListener('load', () => {
             }
         },
         rain: () => { actx.clearRect(0,0,animationCanvas.width,animationCanvas.height); const bg = particles.find(p=>p.type==='rain_bg'); if(bg) actx.putImageData(bg.data,0,0); const isDark=document.documentElement.classList.contains('dark'); actx.strokeStyle=isDark?'rgba(160,180,220,.7)':'rgba(59,130,246,.8)'; actx.lineWidth=1.5; actx.lineCap='round'; particles.filter(p=>p.type==='rain_drop').forEach(p=>{p.y+=p.s;actx.beginPath();actx.moveTo(p.x,p.y);actx.lineTo(p.x,p.y+p.l);actx.stroke();if(p.y>animationCanvas.height){p.y=-p.l;p.x=Math.random()*animationCanvas.width;}}); },
-        // CORRECTED: Fixed bug with `splice` and wrong index removal. Now uses filter.
         fire: () => {
             actx.globalCompositeOperation = 'source-over';
             actx.clearRect(0, 0, actx.canvas.width, actx.canvas.height);
@@ -828,7 +821,6 @@ window.addEventListener('load', () => {
         ghost: () => { actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height); const p = particles[0]; if(!p) return; p.time++; const offsetX = Math.sin(p.time * 0.02) * 10; const offsetY = Math.cos(p.time * 0.03) * 5; actx.save(); actx.translate(offsetX, offsetY); actx.globalAlpha = 0.8 + Math.sin(p.time * 0.05) * 0.2; redrawStroke(actx, p.body); p.eyes.forEach(e => redrawStroke(actx, e)); actx.restore(); },
         heart: () => { actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height); particles.forEach(p => { p.time++; const b = getStrokeBounds(p.stroke); if (0 === b.width) return; const cX = b.x + b.width / 2, cY = b.y + b.height / 2, s = 1 + .08 * Math.sin(p.time * .08); actx.save(); actx.translate(cX, cY); actx.scale(s, s); const centeredPoints = p.stroke.points.map(pt => ({ x: pt.x - cX, y: pt.y - cY })); redrawStroke(actx, { ...p.stroke, points: centeredPoints }); actx.restore() }); if(particles.length === 0 && animationState === 'ANIMATING') { isPreviewing ? stopPreview() : stopAnimation(); } },
         sea: () => { actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height); particles.forEach(p => { p.time++; const alteredPoints = p.stroke.points.map(pt => ({ x: pt.x, y: pt.y + Math.sin(p.time * 0.05 + pt.x * 0.02) * 5 })); redrawStroke(actx, { ...p.stroke, points: alteredPoints }); }); },
-        // CORRECTED: Replaced with the simpler, working ball animation step from CÓDIGO 1
         ball: () => {
             actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height);
             particles.forEach(ball => {
@@ -896,7 +888,7 @@ window.addEventListener('load', () => {
             ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
         }
         ctx.stroke();
-    }       
+    }        
     
     // --- UI Panels & File Logic ---
     function openSettings() { document.body.classList.add('panel-open'); settingsBackdrop.classList.remove('hidden'); settingsPanel.classList.add('open'); }
@@ -916,28 +908,28 @@ window.addEventListener('load', () => {
             tempCtx.drawImage(animationCanvas, 0, 0);
         }
         
-        const filename = doodleFilenameInput.value.trim() || 'meu_doodle';
+        const filename = doodleFilenameInput.value.trim() || 'my_doodle';
         const link = document.createElement('a');
         link.download = `${filename}.png`;
         link.href = tempCanvas.toDataURL('image/png');
         link.click();
-        showMessage('Doodle salvo como PNG!');
+        showMessage('Doodle saved as PNG!');
     }
-    function saveDrawingToLocalStorage() { try { localStorage.setItem('doodle-drawing', JSON.stringify(getCurrentDrawing())); } catch (e) { console.error("Erro ao salvar no localStorage:", e); showMessage("Não foi possível salvar."); } }
-    function loadDrawingFromLocalStorage() { try { const savedDrawing = localStorage.getItem('doodle-drawing'); if (savedDrawing) { history = [JSON.parse(savedDrawing)]; historyIndex = 0; redrawCanvas(); updateUndoRedoButtons(); if(getCurrentDrawing().length > 0) showMessage("Seu último doodle foi carregado!"); } } catch (e) { console.error("Erro ao carregar do localStorage:", e); history = [[]]; historyIndex = 0; } }
+    function saveDrawingToLocalStorage() { try { localStorage.setItem('doodle-drawing', JSON.stringify(getCurrentDrawing())); } catch (e) { console.error("Error saving to localStorage:", e); showMessage("Could not save."); } }
+    function loadDrawingFromLocalStorage() { try { const savedDrawing = localStorage.getItem('doodle-drawing'); if (savedDrawing) { history = [JSON.parse(savedDrawing)]; historyIndex = 0; redrawCanvas(); updateUndoRedoButtons(); if(getCurrentDrawing().length > 0) showMessage("Your last doodle has been loaded!"); } } catch (e) { console.error("Error loading from localStorage:", e); history = [[]]; historyIndex = 0; } }
     function setDarkMode(on) { 
         document.documentElement.classList.toggle('dark', on);
         localStorage.setItem('doodle-dark', on ? '1' : '0');
         if (animationState === 'IDLE') redrawCanvas();
-    }   
+    }    
     
     function saveAsDoodle() {
         const allDrawings = getCurrentDrawing();
         if (allDrawings.length === 0) {
-            showMessage('Nada para salvar. Desenhe algo primeiro!');
+            showMessage('Nothing to save. Draw something first!');
             return;
         }
-        const filename = doodleFilenameInput.value.trim() || 'meu_doodle';
+        const filename = doodleFilenameInput.value.trim() || 'my_doodle';
         const data = JSON.stringify(allDrawings);
         const blob = new Blob([data], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -948,7 +940,7 @@ window.addEventListener('load', () => {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        showMessage('Arquivo .doodle salvo!');
+        showMessage('.doodle file saved!');
     }
 
     function handleFileLoad(event) {
@@ -956,7 +948,7 @@ window.addEventListener('load', () => {
         if (!file) return;
 
         if (!file.name.endsWith('.doodle')) {
-            showMessage('Arquivo inválido. Por favor, selecione um arquivo .doodle.');
+            showMessage('Invalid file. Please select a .doodle file.');
             event.target.value = '';
             return;
         }
@@ -978,7 +970,7 @@ window.addEventListener('load', () => {
         reader.onload = (e) => {
             try {
                 const loadedData = JSON.parse(e.target.result);
-                if (!Array.isArray(loadedData)) throw new Error("Formato inválido");
+                if (!Array.isArray(loadedData)) throw new Error("Invalid format");
                 
                 stopAnimation();
                 history = [loadedData]; // File load resets history
@@ -987,18 +979,18 @@ window.addEventListener('load', () => {
                 playLoadAnimation(() => {
                     redrawCanvas();
                     updateUndoRedoButtons();
-                    showMessage('Doodle carregado com sucesso!');
+                    showMessage('Doodle loaded successfully!');
                 });
 
             } catch (error) {
-                showMessage('Erro: Arquivo corrompido ou em formato inválido.');
-                console.error("Erro ao carregar arquivo .doodle:", error);
+                showMessage('Error: File is corrupt or in invalid format.');
+                console.error("Error loading .doodle file:", error);
             } finally {
                 pendingFileToLoad = null;
             }
         };
         reader.onerror = () => {
-             showMessage('Erro ao ler o arquivo.');
+             showMessage('Error reading file.');
              pendingFileToLoad = null;
         };
         reader.readAsText(pendingFileToLoad);
@@ -1156,7 +1148,7 @@ window.addEventListener('load', () => {
         if (animData && animData.previewDraw) {
             animData.previewDraw();
             redrawCanvas();
-            mainButton.textContent = "Parar Preview";
+            mainButton.textContent = "Stop Preview";
             mainButton.disabled = false;
             mainButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
             mainButton.classList.add('bg-purple-600', 'hover:bg-purple-700');
@@ -1170,10 +1162,10 @@ window.addEventListener('load', () => {
         savedDrawingsForPreview = null;
         isPreviewing = false;
         redrawCanvas();
-        mainButton.textContent = "Animar Doodle";
+        mainButton.textContent = "Animate";
         mainButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
         mainButton.classList.remove('bg-purple-600', 'hover:bg-purple-700');
-        showMessage(getCurrentDrawing().length > 0 ? "Preview finalizado. Seu doodle foi restaurado." : "Preview finalizado.");
+        showMessage(getCurrentDrawing().length > 0 ? "Preview finished. Your doodle has been restored." : "Preview finished.");
         toggleControls(false);
     }
     
