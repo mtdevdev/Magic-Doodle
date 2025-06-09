@@ -80,4 +80,4 @@ The technology stack was chosen and implemented by **Gemini 2.5 Pro** based on m
 1. **Open** the `index.html` file (or the website) in any modern web browser.
 2. **Start drawing!**
 
-**Created by MTDev**
+**Created by MTDev with the licence CC0 1.0 Universal**
