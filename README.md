@@ -22,12 +22,12 @@ Doodle Magic is packed with features to provide a delightful and intuitive user 
 ### 🪄 Shape-Recognition Animation Engine
 The core of Magic Doodle. The app intelligently analyzes your drawings to identify common shapes and applies a corresponding animation.  
 Just draw and click **`Animate`**!
-    - **Pulsing Hearts:** Draw a heart ❤️ and watch it beat.
-    - **Gentle Rain:** Draw vertical lines 💧 and a rain animation will play over your existing doodle.
-    - **Bouncing Balls:** Any circular shape 🏀 will start bouncing around the canvas.
-    - **Floating Balloons:** Draw a circle with a string attached 🎈 and it will float away.
-    - **Dancing Flowers:** Green stems with colorful tops 🌸 will sway gently.
-    - **And more!** Discover other animations like twinkling stars, crackling fire, and floating ghosts.
+  - **Pulsing Hearts:** Draw a heart ❤️ and watch it beat.
+  - **Gentle Rain:** Draw vertical lines 💧 and a rain animation will play over your existing doodle.
+  - **Bouncing Balls:** Any circular shape 🏀 will start bouncing around the canvas.
+  - **Floating Balloons:** Draw a circle with a string attached 🎈 and it will float away.
+  - **Dancing Flowers:** Green stems with colorful tops 🌸 will sway gently.
+  - **And more!** Discover other animations like twinkling stars, crackling fire, and floating ghosts.
 
 ### 🧘‍♂️ Focus Mode (`집중`)
  - **Distraction-Free Drawing:**  
