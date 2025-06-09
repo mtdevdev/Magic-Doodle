@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doodle Magic Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: none;
+            background-color: #f0f9ff;
+            transition: background-color 0.5s ease;
+        }
+
+        #focus-backdrop {
+            transition: opacity 0.5s ease-in-out;
+            backdrop-filter: blur(8px);
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        body.focus-mode .main-header,
+        body.focus-mode > .main-container > p,
+        body.focus-mode #toggle-tools-btn,
+        body.focus-mode #tools-area,
+        body.focus-mode .grid-cols-2 {
+            display: none;
+        }
+
+        body.focus-mode .canvas-container {
+            z-index: 100;
+            position: relative;
+        }
+        
+        .main-container {
+            transition: filter 0.3s ease, transform 0.3s ease;
+        }
+
+        .color-brush.active {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            padding-top: 75%;
+            cursor: crosshair;
+            background-color: white;
+            transition: background-color 0.5s ease, box-shadow 0.3s ease-in-out;
+        }
+
+        .canvas-container canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #focus-controls-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 101;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        #focus-controls-container .focus-top,
+        #focus-controls-container .focus-bottom {
+            pointer-events: none;
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            background-color: rgba(255,255,255,0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            opacity: 0;
+        }
+        
+        #focus-controls-container.visible .focus-top,
+        #focus-controls-container.visible .focus-bottom {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        #focus-controls-container .focus-top { transform: translateY(-20px); }
+        #focus-controls-container .focus-bottom { transform: translateY(20px); }
+
+        .dark #focus-controls-container .focus-top,
+        .dark #focus-controls-container .focus-bottom {
+            background-color: rgba(39, 39, 42, 0.8);
+        }
+        
+        #message-box {
+            transition: opacity 0.5s ease-out;
+        }
+
+        body.focus-mode #message-box {
+            position: fixed;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 102;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 99px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            backdrop-filter: blur(5px);
+            max-width: 90%;
+        }
+        .dark body.focus-mode #message-box {
+             background-color: rgba(255,255,255,0.8);
+             color: #18181b;
+        }
+
+        #animation-canvas {
+            pointer-events: none;
+        }
+        
+        #message-text {
+            overflow: hidden;
+            white-space: nowrap;
+            display: inline-block;
+            vertical-align: bottom;
+        }
+        
+        #settings-panel {
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease;
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        #settings-panel.open {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #help-guide-panel {
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        #help-guide-panel.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #help-guide-content {
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform: scale(0.95);
+        }
+        #help-guide-panel.open #help-guide-content {
+            transform: scale(1);
+        }
+
+        details > summary {
+            cursor: pointer;
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+        details > summary .summary-arrow {
+            transition: transform 0.2s;
+        }
+        details[open] > summary .summary-arrow {
+            transform: rotate(90deg);
+        }
+        
+        .help-card {
+            transition: opacity 0.3s ease-out, max-height 0.4s ease-out, transform 0.3s ease-out, margin 0.4s ease-out, padding 0.4s ease-out;
+            transform-origin: top;
+            max-height: 200px;
+            overflow: hidden;
+        }
+        .help-card.hidden {
+            opacity: 0;
+            max-height: 0;
+            transform: scale(0.95);
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            border-width: 0;
+        }
+
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 28px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #3b82f6; }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        #tools-area { max-height: 0; transition: max-height 0.5s ease-out, opacity 0.5s ease-out, padding 0.5s ease-out; overflow: hidden; opacity: 0; padding-top:0; padding-bottom:0; }
+        #tools-area.open { max-height: 500px; opacity: 1; padding-top:1rem; padding-bottom:0; }
+
+        .dark body { background-color: #18181b; }
+        .dark .bg-white { background-color: #27272a !important; }
+        .dark .bg-gray-50 { background-color: #3f3f46 !important; }
+        .dark .bg-gray-100 { background-color: #3f3f46 !important; }
+        .dark .bg-blue-600 { background-color: #3b82f6 !important; }
+        .dark .text-gray-800 { color: #f4f4f5 !important; }
+        .dark .text-gray-700 { color: #d4d4d8 !important; }
+        .dark .text-gray-600 { color: #a1a1aa !important; }
+        .dark .text-gray-500 { color: #a1a1aa !important; }
+        .dark .border-gray-200 { border-color: #52525b !important; }
+        .dark .border-gray-300 { border-color: #52525b !important; }
+        .dark .accent-blue-600 { accent-color: #60a5fa; }
+        .dark .canvas-container { background-color: #323238; }
+        .dark #message-box { background-color: #3f3f46; color: #a1a1aa; border: 1px solid #52525b; }
+        #confirm-modal { background-color: white; }
+        .dark #confirm-modal { background-color: #27272a; }
+        .dark #confirm-modal-cancel { background-color: #52525b; hover:bg-gray-600; color: #f4f4f5; }
+        
+        #toggle-tools-btn { border: 1px solid #e5e7eb; }
+        .dark #toggle-tools-btn { border-color: #52525b; }
+
+        .dark #settings-panel { background-color: rgba(39, 39, 42, 0.9); backdrop-filter: blur(10px); }
+        .dark .switch .slider { background-color: #52525b; }
+        .dark #help-guide-panel { background-color: rgba(24, 24, 27, 0.7); backdrop-filter: blur(8px); }
+        .dark #help-guide-content { background-color: #27272a; border-color: #52525b;}
+        .dark .help-card { background-color: #3f3f46; border-color: #52525b; }
+        .dark .help-card-desc { color: #d4d4d8; }
+        .dark #help-search, .dark #doodle-filename { background-color: #3f3f46; border-color: #52525b; color: #f4f4f5; }
+    </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen transition-colors overflow-hidden">
+    
+    <div id="focus-backdrop" class="fixed inset-0 z-30 hidden pointer-events-none opacity-0"></div>
+    <!-- Container para controles no modo de foco -->
+    <div id="focus-controls-container" class="hidden">
+        <div class="focus-top" id="focus-palette-container">
+            <!-- Paleta de cores será movida para cá via JS -->
+        </div>
+        <div class="focus-bottom">
+            <button id="focus-undo-btn" title="Desfazer (Ctrl+Z)" class="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition disabled:opacity-50">
+                <svg class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+             <button id="focus-redo-btn" title="Refazer (Ctrl+Y)" class="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition disabled:opacity-50">
+                 <svg class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </button>
+            <button id="focus-main-action-btn" class="bg-blue-600 text-white font-semibold py-2 px-5 rounded-full shadow-md hover:bg-blue-700 transition-transform transform hover:scale-105 disabled:bg-blue-400">
+                Animar
+            </button>
+            <button id="focus-clear-btn" class="bg-red-500 text-white font-semibold py-2 px-5 rounded-full shadow-md hover:bg-red-600 transition-transform transform hover:scale-105 disabled:bg-red-300">
+                Limpar
+            </button>
+            <button id="focus-exit-btn" title="Sair do Foco (Esc)" class="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition">
+                <svg class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m7 7l5 5m0 0v-4m0 4h-4m-7-7l-5 5m0 0v-4m0 4h4" /></svg>
+            </button>
+        </div>
+    </div>
+
+    <div id="settings-backdrop" class="fixed inset-0 bg-black bg-opacity-30 z-40 hidden"></div>
+    <div id="settings-panel" class="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-md rounded-t-3xl shadow-2xl z-50 max-w-md mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800">Configurações</h2>
+            <button id="close-settings-btn" class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <div class="space-y-4">
+             <h3 class="text-lg font-semibold text-gray-700">Nome do Arquivo</h3>
+             <input type="text" id="doodle-filename" placeholder="meu_doodle" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+        </div>
+
+        <hr class="my-6 border-gray-200 dark:border-gray-600">
+
+        <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-700">Exportar & Salvar</h3>
+             <div class="grid grid-cols-2 gap-4">
+                 <button id="save-png-btn" class="w-full flex items-center justify-center gap-2 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 bg-emerald-500 hover:bg-emerald-600">
+                     Salvar .PNG
+                 </button>
+                 <button id="save-doodle-btn" class="w-full flex items-center justify-center gap-2 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 bg-sky-500 hover:bg-sky-600">
+                     Salvar .doodle
+                 </button>
+             </div>
+             <label for="load-doodle-input" class="cursor-pointer mt-4 w-full flex items-center justify-center gap-2 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 bg-teal-500 hover:bg-teal-600">
+                 Carregar .doodle
+             </label>
+            <input type="file" id="load-doodle-input" class="hidden" accept=".doodle">
+             <div class="flex items-center justify-between pt-4">
+                 <label for="autosave-toggle" class="font-semibold text-gray-700 flex items-center gap-2">
+                     <span class="text-xl">💾</span> Salvamento Automático
+                 </label>
+                 <label class="switch">
+                     <input type="checkbox" id="autosave-toggle">
+                     <span class="slider"></span>
+                 </label>
+             </div>
+            <div class="flex items-center justify-between pt-2">
+                 <label for="dark-mode-toggle" class="font-semibold text-gray-700 flex items-center gap-2">
+                     <span class="text-xl">🌙</span> Modo Escuro
+                 </label>
+                 <label class="switch">
+                     <input type="checkbox" id="dark-mode-toggle">
+                     <span class="slider"></span>
+                 </label>
+            </div>
+        </div>
+    </div>
+
+    <div id="help-guide-panel" class="fixed inset-0 bg-sky-900/30 dark:bg-zinc-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div id="help-guide-content" class="w-full max-w-4xl max-h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col p-6 border border-gray-200">
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                 <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                     <svg class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                      Guia de Animações
+                 </h2>
+                 <button id="close-help-btn" class="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                     <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                 </button>
+            </div>
+            <div class="mb-4 flex-shrink-0">
+                 <input type="search" id="help-search" placeholder="Pesquisar animação..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+            <div id="animation-guide-container" class="overflow-y-auto space-y-2 pr-2">
+                <!-- Conteúdo gerado via JS -->
+            </div>
+        </div>
+    </div>
+    
+    <div id="confirm-modal-backdrop" class="fixed inset-0 bg-black bg-opacity-40 z-[60] hidden items-center justify-center">
+        <div id="confirm-modal" class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm mx-4 transform transition-transform duration-300 scale-95">
+            <h3 class="text-lg font-bold text-gray-800">Confirmar Ação</h3>
+            <p id="confirm-modal-text" class="text-gray-600 my-4">O canvas atual não está vazio. Deseja substituir o doodle atual? Essa ação não pode ser desfeita.</p>
+            <div class="flex justify-end gap-4 mt-6">
+                <button id="confirm-modal-cancel" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 font-semibold">Cancelar</button>
+                <button id="confirm-modal-ok" class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-semibold">Sim, Substituir</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="main-container w-full max-w-md p-4 space-y-4 bg-white rounded-2xl shadow-lg">
+        <div class="flex justify-between items-center relative main-header">
+             <button id="settings-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-transform transform hover:scale-110 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                 <svg class="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            </button>
+            <h1 class="text-2xl font-bold text-center text-gray-800">Doodle Magic</h1>
+                 <button id="help-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-transform transform hover:scale-110 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                     <svg class="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 6c-1.1-.6-2.4-1-4-1s-2.9.4-4 1v11c1.1-.6 2.4-1 4-1s2.9.4 4 1m0-11c1.1-.6 2.4-1 4-1s2.9.4 4 1v11c-1.1-.6-2.4-1-4-1s-2.9.4-4 1m0-11v11"/>
+                     </svg>
+                 </button>
+        </div>
+        <p class="text-center text-sm text-gray-500">Desenhe e veja a mágica acontecer.</p>
+        
+        <div id="palette-container" class="flex justify-center items-center space-x-2 p-2">
+            <div id="color-palette" class="flex items-center space-x-2 rounded-lg"></div>
+        </div>
+
+        <div id="canvas-wrapper" class="canvas-container border-2 border-gray-300 rounded-lg overflow-hidden">
+            <canvas id="doodle-canvas"></canvas>
+            <canvas id="animation-canvas"></canvas>
+        </div>
+
+        <button id="toggle-tools-btn" class="w-full mt-4 py-2 px-4 bg-white dark:bg-white-700 rounded-lg text-sm text-gray-600 font-semibold flex items-center justify-center gap-2">
+            Ferramentas
+            <svg id="tools-arrow" class="w-4 h-4 transition-transform transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        
+        <div id="tools-area" class="space-y-2">
+            <div class="flex justify-between items-center space-x-2 pt-2">
+                <div class="flex items-center space-x-1">
+                    <input id="brush-size" type="range" min="4" max="24" value="8" class="w-20 accent-blue-600 disabled:opacity-50" title="Tamanho do Pincel">
+                    <span id="brush-size-label" class="text-xs text-gray-500">8</span>
+                </div>
+                <button id="undo-btn" title="Desfazer (Ctrl+Z)" class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition disabled:opacity-50">
+                    <svg class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <button id="redo-btn" title="Refazer (Ctrl+Y)" class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition disabled:opacity-50">
+                     <svg class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                </button>
+                 <button id="focus-mode-btn" title="Modo Foco (Ctrl+F)" class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:bg-gray-200 transition">
+                     <svg class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m7-7v4m0 0h-4m4-4l-5 5m-7 8v4m0 0h4m-4 0l5-5m7 7v-4m0 4h-4m4-4l-5-5" /></svg>
+                 </button>
+            </div>
+        </div>
+
+
+        <div class="grid grid-cols-2 gap-4 mt-4">
+            <button id="main-action-button" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-transform transform hover:scale-105 disabled:bg-blue-400 disabled:transform-none disabled:cursor-not-allowed">
+                Animar
+            </button>
+            <button id="clear-button" class="w-full bg-red-500 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 transition-transform transform hover:scale-105 disabled:bg-red-300 disabled:transform-none disabled:cursor-not-allowed">
+                Limpar
+            </button>
+        </div>
+        
+        <div id="message-box" class="hidden text-center text-gray-500 p-2 mt-4 rounded-lg bg-gray-100">
+             <span id="message-text"></span>
+        </div>
+    </div>
+
+<script>
+window.addEventListener('load', () => {
+    // --- Element Selection ---
+    const doodleCanvas = document.getElementById('doodle-canvas');
+    const animationCanvas = document.getElementById('animation-canvas');
+    const dtx = doodleCanvas.getContext('2d');
+    const actx = animationCanvas.getContext('2d');
+    
+    // Controls
+    const mainButton = document.getElementById('main-action-button');
+    const clearButton = document.getElementById('clear-button');
+    const messageBox = document.getElementById('message-box');
+    const messageText = document.getElementById('message-text');
+    const brushSizeInput = document.getElementById('brush-size');
+    const brushSizeLabel = document.getElementById('brush-size-label');
+    const undoBtn = document.getElementById('undo-btn');
+    const redoBtn = document.getElementById('redo-btn');
+    const toggleToolsBtn = document.getElementById('toggle-tools-btn');
+    const toolsArea = document.getElementById('tools-area');
+    const toolsArrow = document.getElementById('tools-arrow');
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+    // --- Focus Mode ---
+    const focusModeBtn = document.getElementById('focus-mode-btn');
+    const focusExitBtn = document.getElementById('focus-exit-btn');
+    const focusBackdrop = document.getElementById('focus-backdrop');
+    const focusControlsContainer = document.getElementById('focus-controls-container');
+    const paletteContainer = document.getElementById('palette-container');
+    const focusPaletteContainer = document.getElementById('focus-palette-container');
+    const focusMainActionBtn = document.getElementById('focus-main-action-btn');
+    const focusClearBtn = document.getElementById('focus-clear-btn');
+    const focusUndoBtn = document.getElementById('focus-undo-btn');
+    const focusRedoBtn = document.getElementById('focus-redo-btn');
+    
+    // Settings
+    const settingsBtn = document.getElementById('settings-btn');
+    const closeSettingsBtn = document.getElementById('close-settings-btn');
+    const settingsPanel = document.getElementById('settings-panel');
+    const settingsBackdrop = document.getElementById('settings-backdrop');
+    const savePngBtn = document.getElementById('save-png-btn');
+    const autosaveToggle = document.getElementById('autosave-toggle');
+    const saveDoodleBtn = document.getElementById('save-doodle-btn');
+    const loadDoodleInput = document.getElementById('load-doodle-input');
+    const doodleFilenameInput = document.getElementById('doodle-filename');
+    const confirmModalBackdrop = document.getElementById('confirm-modal-backdrop');
+    const confirmModalOk = document.getElementById('confirm-modal-ok');
+    const confirmModalCancel = document.getElementById('confirm-modal-cancel');
+
+
+    // Animation Guide
+    const helpBtn = document.getElementById('help-btn');
+    const helpGuidePanel = document.getElementById('help-guide-panel');
+    const closeHelpBtn = document.getElementById('close-help-btn');
+    const helpSearchInput = document.getElementById('help-search');
+    
+    // --- Application State ---
+    let isDrawing = false;
+    let history = [[]];
+    let historyIndex = 0;
+    let currentStrokePoints = [];
+    let activeColor = '#3b82f6';
+    let animationState = 'IDLE';
+    let activeAnimation = null;
+    let masterAnimationFrameId = null;
+    let particles = [];
+    let animationTime = 0; // Added for animations that need a time reference
+    let brushSize = 8;
+    let typewriterTimeout;
+    let messageTimeout;
+    let savedDrawingsForPreview = null;
+    let isPreviewing = false;
+    let pendingFileToLoad = null;
+
+    // --- Constants ---
+    const COLORS = [ { hex: '#3b82f6' }, { hex: '#22c55e' }, { hex: '#f97316' }, { hex: '#ef4444' }, { hex: '#eab308' }, { hex: '#d1d5db' }, { hex: '#ec4899' }, { hex: '#111827' } ];
+    const BLACK_COLOR = '#111827';
+    const GRAY_COLOR = '#d1d5db';
+    const BLUE_COLOR = '#3b82f6';
+    const YELLOW_COLOR = '#eab308';
+    const RED_COLOR = '#ef4444';
+    const PINK_COLOR = '#ec4899';
+    const GREEN_COLOR = '#22c55e';
+    const ORANGE_COLOR = '#f97316';
+    
+    const ANIMATION_GUIDE_DATA = {
+        "Emotivas 💖": [
+            { id: 'heart', name: "Coração Pulsante", emoji: "💖", desc: "Desenhe um ou mais corações com cores quentes para vê-los bater.", previewDraw: () => autoDrawShape([{ x: 0.5, y: 0.4, w: 0.4, h: 0.4, type: 'heart', color: RED_COLOR }]) },
+            { id: 'stars', name: "Céu Estrelado", emoji: "✨", desc: "Desenhe pequenas formas amarelas ou cinzas para criar um céu noturno cintilante.", previewDraw: () => autoDrawShape([{ x: 0.2, y: 0.3, w: 0.05, h: 0.05, type: 'star', color: YELLOW_COLOR }, { x: 0.7, y: 0.2, w: 0.05, h: 0.05, type: 'star', color: YELLOW_COLOR }, { x: 0.5, y: 0.6, w: 0.05, h: 0.05, type: 'star', color: GRAY_COLOR }]) }
+        ],
+        "Naturais 🌤️": [
+            { id: 'rain', name: "Chuva Suave", emoji: "💧", desc: "Desenhe múltiplos traços verticais para fazer chover sobre seu doodle.", previewDraw: () => autoDrawShape([{x:0.2, y:0.4, w:0.02, h:0.2, type:'line', color: BLUE_COLOR}, {x:0.5, y:0.4, w:0.02, h:0.2, type:'line', color: BLUE_COLOR}, {x:0.8, y:0.4, w:0.02, h:0.2, type:'line', color: BLUE_COLOR}]) },
+            { id: 'flowers', name: "Flores Dançantes", emoji: "🌸", desc: "Crie caules verdes com pétalas coloridas no topo. Elas balançarão com a brisa.", previewDraw: () => autoDrawShape([{x:0.5, y:0.7, w:0.03, h:0.4, type:'line', color: GREEN_COLOR}, {x:0.5, y:0.3, w:0.2, h:0.2, type:'circle', color: PINK_COLOR}]) },
+            { id: 'fire', name: "Fogo Crepitante", emoji: "🔥", desc: "Faça formas pontudas e verticais na parte de baixo do canvas com cores de fogo.", previewDraw: () => autoDrawShape([{x:0.5, y:0.8, w:0.1, h:0.3, type:'line', color: ORANGE_COLOR}, {x:0.4, y:0.8, w:0.1, h:0.2, type:'line', color: RED_COLOR}, {x:0.6, y:0.8, w:0.1, h:0.25, type:'line', color: YELLOW_COLOR}]) },
+            { id: 'sea', name: "Mar Ondulante", emoji: "🌊", desc: "Desenhe linhas horizontais onduladas com a cor azul.", previewDraw: () => autoDrawShape([{ x: 0.5, y: 0.8, w: 0.9, h: 0.1, type: 'wave', color: BLUE_COLOR }]) },
+        ],
+        "Objetos 🪄": [
+            { id: 'balloons', name: "Balões Flutuantes", emoji: "🎈", desc: "Desenhe círculos coloridos com uma linha preta ou cinza saindo de baixo.", previewDraw: () => autoDrawShape([{x:0.5, y:0.4, w:0.2, h:0.2, type:'circle', color: RED_COLOR}, {x:0.5, y:0.6, w:0.01, h:0.2, type:'line', color: BLACK_COLOR}]) },
+            { id: 'boat', name: "Barco na Água", emoji: "⛵", desc: "Desenhe um casco de barco sobre algumas linhas azuis na parte de baixo do canvas.", previewDraw: () => autoDrawShape([{x:0.5, y:0.8, w:0.8, h:0.05, type:'wave', color: BLUE_COLOR}, {x:0.5, y:0.6, w:0.4, h:0.2, type:'rect', color: ORANGE_COLOR}]) },
+            { id: 'ghost', name: "Fantasma Flutuante", emoji: "👻", desc: "Um corpo cinza com olhos pretos dentro. Ele flutuará e desaparecerá.", previewDraw: () => autoDrawShape([{x:0.5, y:0.5, w:0.4, h:0.5, type:'rect', color: GRAY_COLOR}, {x:0.4, y:0.4, w:0.05, h:0.05, type:'circle', color: BLACK_COLOR}, {x:0.6, y:0.4, w:0.05, h:0.05, type:'circle', color: BLACK_COLOR}]) },
+            { id: 'ball', name: "Bola Quicando", emoji: "🏀", desc: "Desenhe um círculo com qualquer cor para vê-lo quicar.", previewDraw: () => autoDrawShape([{ x: 0.5, y: 0.3, w: 0.2, h: 0.2, type: 'circle', color: ORANGE_COLOR }]) },
+        ]
+    };
+    
+    function getCurrentDrawing() { return history[historyIndex]; }
+    
+    function saveState() {
+        history = history.slice(0, historyIndex + 1);
+        const newDrawingState = JSON.parse(JSON.stringify(getCurrentDrawing()));
+        history.push(newDrawingState);
+        historyIndex++;
+        updateUndoRedoButtons();
+    }
+
+    function recordNewStroke() {
+        if (currentStrokePoints.length > 1) {
+            const newStroke = { points: [...currentStrokePoints], color: activeColor, size: brushSize };
+            history[historyIndex].push(newStroke);
+        }
+        currentStrokePoints = [];
+        if (autosaveToggle.checked) saveDrawingToLocalStorage();
+    }
+    
+    function redrawCanvas() {
+        const allDrawings = getCurrentDrawing();
+        const isDark = document.documentElement.classList.contains('dark');
+        const bgColor = isDark ? '#323238' : 'white';
+        dtx.fillStyle = bgColor;
+        dtx.fillRect(0, 0, doodleCanvas.width, doodleCanvas.height);
+        allDrawings.forEach(d => redrawStroke(dtx, d));
+    }
+
+    function startDrawing(e) {
+        if(animationState !== 'IDLE' || isPreviewing) return;
+        isDrawing = true;
+        saveState();
+        currentStrokePoints = [getMousePos(e)];
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        currentStrokePoints.push(getMousePos(e));
+        const tempStroke = { points: currentStrokePoints, color: activeColor, size: brushSize };
+        redrawCanvas(); 
+        redrawStroke(dtx, tempStroke);
+    }
+
+    function stopDrawing() {
+        if (!isDrawing) return;
+        isDrawing = false;
+        recordNewStroke();
+        redrawCanvas();
+    }
+
+    function undo() { if (historyIndex > 0) { historyIndex--; stopAnimation(); redrawCanvas(); updateUndoRedoButtons(); } }
+    function redo() { if (historyIndex < history.length - 1) { historyIndex++; stopAnimation(); redrawCanvas(); updateUndoRedoButtons(); } }
+    
+    function updateUndoRedoButtons(){
+        const canUndo = historyIndex > 0 && !isPreviewing;
+        const canRedo = historyIndex < history.length - 1 && !isPreviewing;
+        undoBtn.disabled = !canUndo;
+        redoBtn.disabled = !canRedo;
+        focusUndoBtn.disabled = !canUndo;
+        focusRedoBtn.disabled = !canRedo;
+    }
+
+    function masterLoop() {
+        animationTime++;
+        if (typeof animationSteps[activeAnimation] === 'function') {
+            animationSteps[activeAnimation]();
+        }
+        masterAnimationFrameId = requestAnimationFrame(masterLoop);
+    }
+    
+    function handleMainButtonClick() {
+        const allDrawings = getCurrentDrawing();
+        if (isPreviewing) {
+            stopPreview();
+            return;
+        }
+        if (animationState === 'ANIMATING') {
+            stopAnimation();
+        } else if (allDrawings.length > 0) {
+            analyzeAndAnimate();
+        } else {
+            showMessage('Desenhe algo primeiro para animar!');
+        }
+    }
+    
+    function analyzeAndAnimate(animationId = null) {
+        animationState = 'ANALYZING';
+        if (!isPreviewing) showMessage('Analisando seu doodle...');
+        const allDrawings = getCurrentDrawing();
+        
+        setTimeout(() => { 
+            let foundAnimation = animationId;
+            if (!foundAnimation) {
+                const checks = { ball: isBall(allDrawings), sea: isSea(allDrawings), balloons: isBalloons(allDrawings).length > 0, flowers: isFlowers(allDrawings), heart: isHeart(allDrawings).length > 0, ghost: isGhost(allDrawings), fire: isFire(allDrawings), rain: isRain(allDrawings), stars: isStars(allDrawings), boat: isBoat(allDrawings) };
+                for (const [key, result] of Object.entries(checks)) {
+                    if (result) {
+                        foundAnimation = key;
+                        break;
+                    }
+                }
+            }
+            if (foundAnimation) {
+                activeAnimation = foundAnimation;
+                if (typeof animationSetups[activeAnimation] === 'function') {
+                    animationSetups[activeAnimation]();
+                    animationState = 'ANIMATING';
+                    mainButton.textContent = "Parar Animação";
+                    focusMainActionBtn.textContent = "Parar";
+                    dtx.clearRect(0, 0, doodleCanvas.width, doodleCanvas.height);
+                    if (!isPreviewing) showMessage('Animação aplicada!');
+                    animationTime = 0;
+                    masterLoop();
+                } else {
+                    animationState = 'IDLE';
+                    if (!isPreviewing) showMessage('Erro ao iniciar a animação.');
+                    redrawCanvas();
+                }
+            } else {
+                animationState = 'IDLE';
+                activeAnimation = null; 
+                if (!isPreviewing) showMessage('Não reconheci as formas. Tente de novo.');
+                redrawCanvas();
+                if (isPreviewing) stopPreview();
+            }
+        }, 300);
+    }
+    
+    function stopAnimation() {
+        if (masterAnimationFrameId) cancelAnimationFrame(masterAnimationFrameId);
+        masterAnimationFrameId = null;
+        actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height);
+        animationState = 'IDLE';
+        mainButton.textContent = "Animar";
+        focusMainActionBtn.textContent = "Animar";
+        if (!isPreviewing && !document.body.classList.contains('focus-mode')) {
+            messageBox.classList.add('hidden');
+        }
+        document.documentElement.style.backgroundColor = '';
+        particles = [];
+        if (!isPreviewing) { redrawCanvas(); }
+        toggleControls(false);
+    }
+
+    function clearAll() {
+        if (isPreviewing) { stopPreview(); }
+        else { saveState(); history[historyIndex] = []; stopAnimation(); redrawCanvas(); updateUndoRedoButtons(); if (autosaveToggle.checked) saveDrawingToLocalStorage(); }
+    }
+    
+    // --- Recognition Functions ---
+    function isRain(s) { if (s.length < 3) return false; let v = 0; s.forEach(k => { const b = getStrokeBounds(k); if (b.height > b.width * 1.5) v++; }); return v / s.length > 0.6; }
+    function isFire(s) { if (s.length < 2) return false; const fireColors = [ORANGE_COLOR, RED_COLOR, YELLOW_COLOR]; const fireColorStrokes = s.filter(k => fireColors.includes(k.color)); if (fireColorStrokes.length / s.length < 0.7) { return false; } let spikyStrokes = 0; let totalBounds = getStrokeBounds(s[0]); s.forEach(k => { const b = getStrokeBounds(k); if (b.height > b.width) { spikyStrokes++; } totalBounds = mergeBounds(totalBounds, b); }); const isSpiky = (spikyStrokes / s.length) > 0.6; const isAtTheBottom = (totalBounds.y + totalBounds.height) > animationCanvas.height * 0.65; return isSpiky && isAtTheBottom; }
+    function isStars(s) { if (s.length < 4) return false; const t = [YELLOW_COLOR, GRAY_COLOR]; let a = 0, m = 0; s.forEach(k => { if (t.includes(k.color)) a++; const b = getStrokeBounds(k); if (b.width < 25 && b.height < 25) m++; }); return (a / s.length > 0.7) && (m / s.length > 0.7); }
+    function isHeart(s) { const heartColors = [RED_COLOR, PINK_COLOR]; const heartStrokes = s.filter(t => heartColors.includes(t.color)); if (heartStrokes.length === 0) return []; if (heartStrokes.length / s.length < 0.8) { return []; } const bounds = heartStrokes.map(getStrokeBounds).reduce(mergeBounds); if (bounds.width < 30 || bounds.height < 30) return []; const aspectRatio = bounds.width / bounds.height; if (aspectRatio > 1.6 || aspectRatio < 0.6) { return []; } return heartStrokes; }
+    
+    // CORRECTED: Merged the best logic from both versions.
+    function isBalloons(s) {
+        const pairs = [];
+        if (s.length < 2) return pairs;
+        const potentialBalloons = s.filter(k => isShapeRound(k) && k.color !== BLACK_COLOR && k.color !== GRAY_COLOR);
+        const potentialStrings = s.filter(k => (k.color === BLACK_COLOR || k.color === GRAY_COLOR) && !isShapeRound(k) && getStrokeBounds(k).height > 10);
+        const usedStrings = new Set();
+        potentialBalloons.forEach(balloon => {
+            const balloonBounds = getStrokeBounds(balloon);
+            let bestStringMatch = null;
+            let minDistance = Infinity;
+            potentialStrings.forEach((string, index) => {
+                if (usedStrings.has(index)) return;
+                const stringBounds = getStrokeBounds(string);
+                const isBelow = stringBounds.y > balloonBounds.y;
+                const balloonCenterX = balloonBounds.x + balloonBounds.width / 2;
+                const stringCenterX = stringBounds.x + stringBounds.width / 2;
+                const isAligned = Math.abs(balloonCenterX - stringCenterX) < balloonBounds.width;
+                const verticalDistance = stringBounds.y - (balloonBounds.y + balloonBounds.height);
+                const isCloseVertically = verticalDistance > -15 && verticalDistance < 50;
+                if (isBelow && isAligned && isCloseVertically) {
+                    if (verticalDistance < minDistance) {
+                        minDistance = verticalDistance;
+                        bestStringMatch = { string, index };
+                    }
+                }
+            });
+            if (bestStringMatch) {
+                pairs.push({ balloon, string: bestStringMatch.string });
+                usedStrings.add(bestStringMatch.index);
+            }
+        });
+        return pairs;
+    }
+    
+    function isFlowers(s) { if (s.length < 2) return false; const stems = s.filter(k => k.color === GREEN_COLOR && getStrokeBounds(k).height > 20); const blossoms = s.filter(k => k.color !== GREEN_COLOR); if (stems.length === 0 || blossoms.length === 0) return false; let pairs = 0; stems.forEach(t => { const sb = getStrokeBounds(t); blossoms.forEach(l => { const lb = getStrokeBounds(l); const isAbove = lb.y < sb.y; const isClose = (Math.abs((lb.x + lb.width / 2) - (sb.x + sb.width / 2))) < sb.width * 3; if (isAbove && isClose) pairs++; }); }); return pairs >= stems.length && stems.length > 0; }
+    function isBoat(s) { if (s.length < 2) return false; const water = s.filter(k => k.color === BLUE_COLOR); const boatParts = s.filter(k => k.color !== BLUE_COLOR); if (water.length === 0 || boatParts.length === 0) return false; const waterBounds = water.map(b => getStrokeBounds(b)).reduce(mergeBounds); const boatBounds = boatParts.map(b => getStrokeBounds(b)).reduce(mergeBounds); const boatIsAboveWater = boatBounds.y + boatBounds.height < waterBounds.y + waterBounds.height / 2; const waterIsLow = waterBounds.y > animationCanvas.height * 0.5; const hullIsWide = boatBounds.width > boatBounds.height * 1.2; return boatIsAboveWater && waterIsLow && hullIsWide; }
+    function isGhost(s) { if (s.length < 2) return false; const eyes = s.filter(k => k.color === BLACK_COLOR && getStrokeBounds(k).width < 15); const body = s.filter(k => k.color === GRAY_COLOR); if (body.length !== 1 || eyes.length === 0) return false; const bodyBounds = getStrokeBounds(body[0]); let eyesInside = 0; eyes.forEach(e => { const eyeBounds = getStrokeBounds(e); if (eyeBounds.x > bodyBounds.x && (eyeBounds.x + eyeBounds.width) < (bodyBounds.x + bodyBounds.width)) eyesInside++; }); return eyesInside >= eyes.length; }
+    function isBall(s) { return s.length > 0 && s.every(isShapeRound); }
+    function isSea(s) { if (s.length === 0) return false; const blueStrokes = s.filter(k => k.color === BLUE_COLOR); if (blueStrokes.length / s.length < 0.7) return false; const areWavy = blueStrokes.every(k => { const b = getStrokeBounds(k); return b.width > b.height * 2; }); return areWavy; }
+
+    // --- Animation Engines (Setup and Step) ---
+    const animationSetups = {
+        balloons: () => { particles = []; const pairs = isBalloons(getCurrentDrawing()); pairs.forEach(pair => { const b = getStrokeBounds(pair.balloon); particles.push({ x: b.x, y: b.y, balloon: { ...pair.balloon, points: pair.balloon.points.map(p => ({ x: p.x - b.x, y: p.y - b.y })) }, string: { ...pair.string, points: pair.string.points.map(p => ({ x: p.x - b.x, y: p.y - b.y })) }, vy: -0.2 - Math.random() * 0.5, time: 100 * Math.random() }); }); },
+        rain: () => { particles = []; redrawCanvas(); let originalDrawingDataForRain = dtx.getImageData(0,0,doodleCanvas.width,doodleCanvas.height); dtx.clearRect(0,0,doodleCanvas.width,doodleCanvas.height); particles.push({type: 'rain_bg', data: originalDrawingDataForRain}); for(let i=0; i<150; i++) particles.push({ type: 'rain_drop', x: Math.random()*animationCanvas.width, y: Math.random()*animationCanvas.height, l: 5+Math.random()*15, s: 3+Math.random()*5 }); },
+        fire: () => { particles = []; const allDrawings = getCurrentDrawing(); let b = getStrokeBounds(allDrawings[0]); allDrawings.forEach(s => b = mergeBounds(b, getStrokeBounds(s))); for (let i=0; i<150; i++) particles.push({ x: b.x + Math.random() * b.width, y: b.y + b.height * 0.8 + Math.random() * b.height * 0.2, sz: 5 + Math.random()*15, sy: -0.5 - Math.random()*1.5, sx: Math.random()*2-1, l: 1, type: 'fire_particle' }); particles.push({type: 'fire_base', strokes: allDrawings}); },
+        stars: () => { particles = []; const isDark = document.documentElement.classList.contains('dark'); document.documentElement.style.backgroundColor = isDark ? '#0c1445' : '#000035'; getCurrentDrawing().forEach(s => { const b = getStrokeBounds(s); particles.push({ x: b.x + b.width / 2, y: b.y + b.height / 2, c: s.color, sz: 2 + Math.max(b.width, b.height) / 2, o: 0.5 + Math.random()*0.5, od: -1, sh: Math.random()<0.1, vx: 20*(Math.random()-0.5), vy: 20*(Math.random()-0.5) }); }); },
+        flowers: () => { particles = []; const allDrawings = getCurrentDrawing(); const stems = allDrawings.filter(k=>k.color===GREEN_COLOR&&getStrokeBounds(k).height>20), blossoms = allDrawings.filter(k=>k.color!==GREEN_COLOR), usedBlossoms=new Set; stems.forEach(stem=>{const stemBounds=getStrokeBounds(stem), stemTop={x:stemBounds.x+stemBounds.width/2, y:stemBounds.y}, attachedBlossoms=[]; blossoms.forEach((blossom, index)=>{if(usedBlossoms.has(index)) return; const blossomBounds=getStrokeBounds(blossom), blossomCenter={x:blossomBounds.x+blossomBounds.width/2, y:blossomBounds.y+blossomBounds.height/2}; if(blossomBounds.y+blossomBounds.height < stemBounds.y + 0.5*stemBounds.height && Math.hypot(blossomCenter.x-stemTop.x, blossomCenter.y-stemTop.y) < 80) { attachedBlossoms.push(blossom); usedBlossoms.add(index); } }); if(attachedBlossoms.length > 0) particles.push({stemStroke:stem, blossomStrokes:attachedBlossoms, timeOffset:1e3*Math.random()}); }); if(particles.length === 0) { stopAnimation(); showMessage("Não foi possível identificar as flores."); } },
+        boat: () => { particles = []; const allDrawings = getCurrentDrawing(); particles.push({ water: allDrawings.filter(k => k.color === BLUE_COLOR), boat: allDrawings.filter(k => k.color !== BLUE_COLOR), time: 0 }); },
+        ghost: () => { particles = []; const allDrawings = getCurrentDrawing(); particles.push({ body: allDrawings.find(k => k.color === GRAY_COLOR), eyes: allDrawings.filter(k => k.color === BLACK_COLOR), time: 0 }); },
+        heart: () => { particles = []; isHeart(getCurrentDrawing()).forEach(o => { particles.push({ stroke: o, time: 100 * Math.random() }) }); },
+        // CORRECTED: Replaced with the simpler, working ball animation logic from CÓDIGO 1
+        ball: () => {
+            particles = [];
+            const allDrawings = getCurrentDrawing();
+            allDrawings.forEach(s => {
+                if (isShapeRound(s)) {
+                    const b = getStrokeBounds(s);
+                    particles.push({
+                        x: b.x + b.width / 2,
+                        y: b.y + b.height / 2,
+                        r: Math.max(b.width, b.height) / 2,
+                        c: s.color,
+                        size: s.size,
+                        vy: 0,
+                        vx: Math.random() * 4 - 2,
+                        g: 0.4,
+                        b: 0.85 // bounce factor
+                    });
+                }
+            });
+        },
+        sea: () => { particles = []; getCurrentDrawing().forEach(stroke => { particles.push({ stroke, time: Math.random() * 100 }); }); },
+    };
+    
+    const animationSteps = {
+        // CORRECTED: Fixed bug with `splice` inside `forEach`
+        balloons: () => {
+            actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height);
+            particles = particles.filter(p => {
+                p.y += p.vy;
+                p.time++;
+                const xOffset = Math.sin(p.time * 0.05) * 0.5;
+                const totalHeight = getStrokeBounds(p.balloon).height + getStrokeBounds(p.string).height;
+                if (p.y < -totalHeight) {
+                    return false; // Remove particle
+                }
+                actx.save();
+                actx.translate(p.x + xOffset, p.y);
+                redrawStroke(actx, p.balloon);
+                redrawStroke(actx, p.string);
+                actx.restore();
+                return true; // Keep particle
+            });
+
+            if (particles.length === 0 && animationState === 'ANIMATING') {
+                isPreviewing ? stopPreview() : stopAnimation();
+            }
+        },
+        rain: () => { actx.clearRect(0,0,animationCanvas.width,animationCanvas.height); const bg = particles.find(p=>p.type==='rain_bg'); if(bg) actx.putImageData(bg.data,0,0); const isDark=document.documentElement.classList.contains('dark'); actx.strokeStyle=isDark?'rgba(160,180,220,.7)':'rgba(59,130,246,.8)'; actx.lineWidth=1.5; actx.lineCap='round'; particles.filter(p=>p.type==='rain_drop').forEach(p=>{p.y+=p.s;actx.beginPath();actx.moveTo(p.x,p.y);actx.lineTo(p.x,p.y+p.l);actx.stroke();if(p.y>animationCanvas.height){p.y=-p.l;p.x=Math.random()*animationCanvas.width;}}); },
+        // CORRECTED: Fixed bug with `splice` and wrong index removal. Now uses filter.
+        fire: () => {
+            actx.globalCompositeOperation = 'source-over';
+            actx.clearRect(0, 0, actx.canvas.width, actx.canvas.height);
+            const base = particles.find(p => p.type === 'fire_base');
+            if (base) {
+                base.strokes.forEach(d => redrawStroke(actx, d));
+            }
+
+            actx.globalCompositeOperation = 'lighter';
+
+            particles = particles.filter(p => {
+                if (p.type === 'fire_particle') {
+                    p.x += p.sx;
+                    p.y += p.sy;
+                    p.l -= 0.02;
+                    if (p.l <= 0) return false;
+
+                    actx.beginPath();
+                    const fireColor = document.documentElement.classList.contains('dark') ? `rgba(255, ${150 + Math.random() * 105}, 0, ${p.l})` : `rgba(255, ${Math.random() * 150}, 0, ${p.l})`;
+                    actx.fillStyle = fireColor;
+                    actx.arc(p.x, p.y, p.sz, 0, 2 * Math.PI);
+                    actx.fill();
+                    return true;
+                }
+                return true;
+            });
+            
+            if (particles.filter(p => p.type === 'fire_particle').length < 150 && base) {
+                let b = getStrokeBounds(base.strokes[0]);
+                base.strokes.forEach(s => b = mergeBounds(b, getStrokeBounds(s)));
+                if (b.width > 0) {
+                    particles.push({ type: 'fire_particle', x: b.x + Math.random() * b.width, y: b.y + b.height, sz: 5 + Math.random() * 15, sy: -0.5 - Math.random() * 1.5, sx: Math.random() * 2 - 1, l: 1 });
+                }
+            }
+        },
+        stars: () => { actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height); particles.forEach(p => { p.o += 0.01 * p.od; if (p.o < 0.2 || p.o > 1) p.od *= -1; if (p.sh) { p.x += p.vx; p.y += p.vy; if (p.x < 0 || p.x > animationCanvas.width || p.y < 0 || p.y > animationCanvas.height) p.sh = false; } actx.fillStyle = p.c; actx.globalAlpha = p.o; actx.beginPath(); actx.arc(p.x, p.y, p.sz, 0, Math.PI * 2); actx.fill(); actx.globalAlpha = 1; }); },
+        flowers: () => { actx.clearRect(0,0,animationCanvas.width,animationCanvas.height); particles.forEach(p=>{const t=animationTime+p.timeOffset, stemBounds=getStrokeBounds(p.stemStroke); if(p.blossomStrokes.length===0)return; const blossomBounds=p.blossomStrokes.map(getStrokeBounds).reduce(mergeBounds), base={x:stemBounds.x+stemBounds.width/2, y:stemBounds.y+stemBounds.height}, blossomAnchor={x:blossomBounds.x+blossomBounds.width/2,y:blossomBounds.y+blossomBounds.height/2}, sway=25*Math.sin(t*.01), swayControl=sway*Math.sin(t*.01*.7), finalAnchorX=blossomAnchor.x+sway; actx.beginPath(),actx.moveTo(base.x,base.y),actx.quadraticCurveTo(base.x+swayControl,base.y-(base.y-blossomAnchor.y)*.5,finalAnchorX,blossomAnchor.y),actx.strokeStyle=p.stemStroke.color,actx.lineWidth=p.stemStroke.size||8,actx.lineCap="round",actx.stroke(),actx.save(),actx.translate(finalAnchorX,blossomAnchor.y),actx.rotate(.01*sway),p.blossomStrokes.forEach(b=>{redrawStroke(actx,{...b,points:b.points.map(pt=>({x:pt.x-blossomAnchor.x,y:pt.y-blossomAnchor.y}))})}),actx.restore()}); },
+        boat: () => {
+            actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height);
+            const p = particles[0];
+            if (!p) return;
+            p.time++;
+            const boatBounds = p.boat.map(b => getStrokeBounds(b)).reduce(mergeBounds);
+            const boatCenter = boatBounds.x + boatBounds.width / 2;
+            p.water.forEach(w => {
+                redrawStroke(actx, { ...w, points: w.points.map(pt => ({ x: pt.x, y: pt.y + Math.sin(p.time * 0.05 + pt.x * 0.02) * 5 })) });
+            });
+            const boatYOffset = Math.sin(p.time * 0.05 + boatCenter * 0.02) * 5;
+            const boatTilt = Math.cos(p.time * 0.05 + boatCenter * 0.02) * 0.02;
+            actx.save();
+            actx.translate(boatCenter, boatBounds.y + boatBounds.height / 2 + boatYOffset);
+            actx.rotate(boatTilt);
+            p.boat.forEach(b => redrawStroke(actx, { ...b, points: b.points.map(pt => ({ x: pt.x - boatCenter, y: pt.y - (boatBounds.y + boatBounds.height / 2) })) }));
+            actx.restore();
+        },
+        ghost: () => { actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height); const p = particles[0]; if(!p) return; p.time++; const offsetX = Math.sin(p.time * 0.02) * 10; const offsetY = Math.cos(p.time * 0.03) * 5; actx.save(); actx.translate(offsetX, offsetY); actx.globalAlpha = 0.8 + Math.sin(p.time * 0.05) * 0.2; redrawStroke(actx, p.body); p.eyes.forEach(e => redrawStroke(actx, e)); actx.restore(); },
+        heart: () => { actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height); particles.forEach(p => { p.time++; const b = getStrokeBounds(p.stroke); if (0 === b.width) return; const cX = b.x + b.width / 2, cY = b.y + b.height / 2, s = 1 + .08 * Math.sin(p.time * .08); actx.save(); actx.translate(cX, cY); actx.scale(s, s); const centeredPoints = p.stroke.points.map(pt => ({ x: pt.x - cX, y: pt.y - cY })); redrawStroke(actx, { ...p.stroke, points: centeredPoints }); actx.restore() }); if(particles.length === 0 && animationState === 'ANIMATING') { isPreviewing ? stopPreview() : stopAnimation(); } },
+        sea: () => { actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height); particles.forEach(p => { p.time++; const alteredPoints = p.stroke.points.map(pt => ({ x: pt.x, y: pt.y + Math.sin(p.time * 0.05 + pt.x * 0.02) * 5 })); redrawStroke(actx, { ...p.stroke, points: alteredPoints }); }); },
+        // CORRECTED: Replaced with the simpler, working ball animation step from CÓDIGO 1
+        ball: () => {
+            actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height);
+            particles.forEach(ball => {
+                ball.vy += ball.g;
+                ball.y += ball.vy;
+                ball.x += ball.vx;
+
+                if (ball.y + ball.r > animationCanvas.height) {
+                    ball.y = animationCanvas.height - ball.r;
+                    ball.vy *= -ball.b;
+                }
+                if (ball.x + ball.r > animationCanvas.width || ball.x - ball.r < 0) {
+                    ball.vx *= -1;
+                }
+                
+                actx.beginPath();
+                actx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+                actx.fillStyle = ball.c;
+                actx.fill();
+                actx.strokeStyle = document.documentElement.classList.contains('dark') ? '#323238' : 'white';
+                actx.lineWidth = ball.size / 4;
+                actx.stroke();
+            });
+        },
+    };
+    
+    // --- Utility Functions ---
+    function showMessage(text) {
+        if (typewriterTimeout) clearTimeout(typewriterTimeout);
+        if (messageTimeout) clearTimeout(messageTimeout);
+
+        messageBox.classList.remove('hidden');
+        messageBox.style.opacity = 1;
+        messageText.textContent = '';
+        let i = 0;
+
+        function type() {
+            if (i < text.length) {
+                messageText.textContent += text.charAt(i);
+                i++;
+                typewriterTimeout = setTimeout(type, 30);
+            } else {
+                messageTimeout = setTimeout(() => {
+                    messageBox.style.opacity = 0;
+                    setTimeout(() => messageBox.classList.add('hidden'), 500);
+                }, 2500);
+            }
+        }
+        type();
+    }
+    function getStrokeBounds(s) { if (!s || !s.points || s.points.length === 0) return { x: 0, y: 0, width: 0, height: 0 }; let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity; s.points.forEach(p => { minX = Math.min(minX, p.x); minY = Math.min(minY, p.y); maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y); }); return { x: minX, y: minY, width: maxX - minX, height: maxY - minY }; }
+    function mergeBounds(b1, b2) { if(!b1 || !b1.width) return b2; if(!b2 || !b2.width) return b1; const minX = Math.min(b1.x, b2.x); const minY = Math.min(b1.y, b2.y); const maxX = Math.max(b1.x + b1.width, b2.x + b2.width); const maxY = Math.max(b1.y + b1.height, b2.y + b2.height); return { x: minX, y: minY, width: maxX - minX, height: maxY - minY }; }
+    function resizeCanvas() { const c = document.querySelector('.canvas-container'); const w = c.clientWidth; const h = c.clientHeight; doodleCanvas.width = animationCanvas.width = w > 0 ? w : 400; doodleCanvas.height = animationCanvas.height = h > 0 ? h : 300; stopAnimation(); redrawCanvas(); }
+    function getMousePos(e) { const r = doodleCanvas.getBoundingClientRect(); const sX = doodleCanvas.width / r.width; const sY = doodleCanvas.height / r.height; const cX = e.touches ? e.touches[0].clientX : e.clientX; const cY = e.touches ? e.touches[0].clientY : e.clientY; return { x: (cX - r.left) * sX, y: (cY - r.top) * sY }; }
+    function isShapeRound(s) { const b = getStrokeBounds(s); if (b.width === 0 || b.height === 0) return false; const r = b.width / b.height; return r > 0.8 && r < 1.2; }
+    function redrawStroke(ctx, stroke) {
+        if (!stroke || !stroke.points || stroke.points.length < 1) return;
+        ctx.strokeStyle = stroke.color;
+        ctx.lineWidth = stroke.size || 8;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+        for (let i = 1; i < stroke.points.length; i++) {
+            ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+        }
+        ctx.stroke();
+    }       
+    
+    // --- UI Panels & File Logic ---
+    function openSettings() { document.body.classList.add('panel-open'); settingsBackdrop.classList.remove('hidden'); settingsPanel.classList.add('open'); }
+    function closeSettings() { document.body.classList.remove('panel-open'); settingsBackdrop.classList.add('hidden'); settingsPanel.classList.remove('open'); }
+    function saveAsPNG() {
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = doodleCanvas.width;
+        tempCanvas.height = doodleCanvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+        const isDark = document.documentElement.classList.contains('dark');
+        
+        tempCtx.fillStyle = isDark ? '#323238' : 'white';
+        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+        tempCtx.drawImage(doodleCanvas, 0, 0);
+
+        if (animationState === 'ANIMATING') {
+            tempCtx.drawImage(animationCanvas, 0, 0);
+        }
+        
+        const filename = doodleFilenameInput.value.trim() || 'meu_doodle';
+        const link = document.createElement('a');
+        link.download = `${filename}.png`;
+        link.href = tempCanvas.toDataURL('image/png');
+        link.click();
+        showMessage('Doodle salvo como PNG!');
+    }
+    function saveDrawingToLocalStorage() { try { localStorage.setItem('doodle-drawing', JSON.stringify(getCurrentDrawing())); } catch (e) { console.error("Erro ao salvar no localStorage:", e); showMessage("Não foi possível salvar."); } }
+    function loadDrawingFromLocalStorage() { try { const savedDrawing = localStorage.getItem('doodle-drawing'); if (savedDrawing) { history = [JSON.parse(savedDrawing)]; historyIndex = 0; redrawCanvas(); updateUndoRedoButtons(); if(getCurrentDrawing().length > 0) showMessage("Seu último doodle foi carregado!"); } } catch (e) { console.error("Erro ao carregar do localStorage:", e); history = [[]]; historyIndex = 0; } }
+    function setDarkMode(on) { 
+        document.documentElement.classList.toggle('dark', on);
+        localStorage.setItem('doodle-dark', on ? '1' : '0');
+        if (animationState === 'IDLE') redrawCanvas();
+    }   
+    
+    function saveAsDoodle() {
+        const allDrawings = getCurrentDrawing();
+        if (allDrawings.length === 0) {
+            showMessage('Nada para salvar. Desenhe algo primeiro!');
+            return;
+        }
+        const filename = doodleFilenameInput.value.trim() || 'meu_doodle';
+        const data = JSON.stringify(allDrawings);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `${filename}.doodle`;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showMessage('Arquivo .doodle salvo!');
+    }
+
+    function handleFileLoad(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (!file.name.endsWith('.doodle')) {
+            showMessage('Arquivo inválido. Por favor, selecione um arquivo .doodle.');
+            event.target.value = '';
+            return;
+        }
+
+        pendingFileToLoad = file;
+
+        if (getCurrentDrawing().length > 0) {
+            showConfirmModal();
+        } else {
+            proceedWithLoad();
+        }
+        event.target.value = '';
+    }
+
+    function proceedWithLoad() {
+        if (!pendingFileToLoad) return;
+        closeSettings();
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const loadedData = JSON.parse(e.target.result);
+                if (!Array.isArray(loadedData)) throw new Error("Formato inválido");
+                
+                stopAnimation();
+                history = [loadedData]; // File load resets history
+                historyIndex = 0;
+                
+                playLoadAnimation(() => {
+                    redrawCanvas();
+                    updateUndoRedoButtons();
+                    showMessage('Doodle carregado com sucesso!');
+                });
+
+            } catch (error) {
+                showMessage('Erro: Arquivo corrompido ou em formato inválido.');
+                console.error("Erro ao carregar arquivo .doodle:", error);
+            } finally {
+                pendingFileToLoad = null;
+            }
+        };
+        reader.onerror = () => {
+             showMessage('Erro ao ler o arquivo.');
+             pendingFileToLoad = null;
+        };
+        reader.readAsText(pendingFileToLoad);
+    }
+    
+    function playLoadAnimation(callback) {
+        animationState = 'ANIMATING';
+        toggleControls(true, { focusMode: true });
+
+        let startTime = null;
+        const duration = 1500;
+        const allDrawings = getCurrentDrawing();
+        const allPoints = allDrawings.flatMap(stroke =>
+            stroke.points.map(p => ({ ...p, color: stroke.color, size: stroke.size }))
+        );
+
+        if (allPoints.length === 0) {
+            stopAnimation();
+            if (callback) callback();
+            return;
+        }
+
+        for (let i = allPoints.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [allPoints[i], allPoints[j]] = [allPoints[j], allPoints[i]];
+        }
+
+        function loop(currentTime) {
+            if (!startTime) startTime = currentTime;
+            const elapsedTime = currentTime - startTime;
+            const progress = Math.min(elapsedTime / duration, 1);
+
+            actx.clearRect(0, 0, animationCanvas.width, animationCanvas.height);
+            dtx.clearRect(0, 0, doodleCanvas.width, doodleCanvas.height);
+
+            const isDark = document.documentElement.classList.contains('dark');
+            actx.fillStyle = isDark ? 'rgba(50, 50, 56, 0.2)' : 'rgba(255, 255, 255, 0.2)';
+            actx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
+            
+            actx.filter = `blur(${(1 - progress) * 4}px)`;
+
+            const pointsToDraw = Math.floor(allPoints.length * easeOutCubic(progress));
+
+            for (let i = 0; i < pointsToDraw; i++) {
+                const p = allPoints[i];
+                const wobbleX = (Math.random() - 0.5) * 8 * (1 - progress);
+                const wobbleY = (Math.random() - 0.5) * 8 * (1 - progress);
+
+                actx.beginPath();
+                actx.moveTo(p.x + wobbleX, p.y + wobbleY);
+                actx.lineTo(p.x + wobbleX + 1, p.y + wobbleY + 1);
+                actx.strokeStyle = p.color;
+                actx.lineWidth = p.size;
+                actx.globalAlpha = 0.3 + progress * 0.7;
+                actx.stroke();
+            }
+
+            actx.filter = 'none';
+            actx.globalAlpha = 1;
+
+            if (progress < 1) {
+                masterAnimationFrameId = requestAnimationFrame(loop);
+            } else {
+                stopAnimation();
+                if (callback) callback();
+            }
+        }
+        
+        const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+        masterAnimationFrameId = requestAnimationFrame(loop);
+    }
+    
+    function showConfirmModal() {
+        confirmModalBackdrop.classList.remove('hidden');
+        confirmModalBackdrop.classList.add('flex');
+        setTimeout(() => confirmModalBackdrop.firstElementChild.classList.remove('scale-95'), 10);
+    }
+
+    function hideConfirmModal() {
+        confirmModalBackdrop.firstElementChild.classList.add('scale-95');
+        setTimeout(() => {
+            confirmModalBackdrop.classList.add('hidden');
+            confirmModalBackdrop.classList.remove('flex');
+        }, 300);
+    }
+    
+    function openHelpGuide() { document.body.classList.add('panel-open'); helpGuidePanel.classList.add('open'); }
+    function closeHelpGuide() { document.body.classList.remove('panel-open'); helpGuidePanel.classList.remove('open'); }
+
+    function populateHelpGuide() {
+        const container = document.getElementById('animation-guide-container');
+        container.innerHTML = '';
+        for (const [category, animations] of Object.entries(ANIMATION_GUIDE_DATA)) {
+            const details = document.createElement('details');
+            details.open = true;
+            details.className = 'transition-all duration-300';
+            const summary = document.createElement('summary');
+            summary.className = 'text-xl font-bold text-gray-700 pb-2 flex items-center justify-between';
+            summary.innerHTML = `<span>${category}</span><svg class="w-5 h-5 text-gray-500 summary-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>`;
+            const contentDiv = document.createElement('div');
+            contentDiv.className = "space-y-4 pt-2";
+            animations.forEach(anim => {
+                const card = document.createElement('div');
+                card.className = 'help-card bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm';
+                card.dataset.name = anim.name.toLowerCase();
+                card.dataset.desc = anim.desc.toLowerCase();
+                card.innerHTML = `<div class="flex justify-between items-start gap-4"><div><h4 class="text-lg font-semibold text-gray-800 flex items-center gap-2">${anim.emoji} ${anim.name}</h4><p class="text-sm text-gray-600 help-card-desc mt-1">${anim.desc}</p></div><button data-anim-id="${anim.id}" class="preview-btn text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 bg-blue-500 hover:bg-blue-600 flex-shrink-0">Preview</button></div>`;
+                contentDiv.appendChild(card);
+            });
+            details.append(summary, contentDiv);
+            container.appendChild(details);
+        }
+        document.querySelectorAll('.preview-btn').forEach(btn => btn.addEventListener('click', () => startPreview(btn.dataset.animId)));
+    }
+
+    function filterHelpGuide() {
+        const query = document.getElementById('help-search').value.toLowerCase().trim();
+        document.querySelectorAll('.help-card').forEach(card => {
+            const isVisible = card.dataset.name.includes(query) || card.dataset.desc.includes(query);
+            card.classList.toggle('hidden', !isVisible);
+        });
+        document.querySelectorAll('#animation-guide-container details').forEach(details => {
+            const visibleCards = details.querySelectorAll('.help-card:not(.hidden)');
+            details.style.display = visibleCards.length === 0 ? 'none' : '';
+        });
+    }
+    
+    function toggleControls(disabled, options = {}) {
+        const { focusMode = false } = options;
+
+        if (!focusMode) {
+            [mainButton, clearButton, brushSizeInput, settingsBtn, helpBtn, focusModeBtn, toggleToolsBtn].forEach(btn => btn.disabled = disabled);
+        }
+        
+        document.querySelectorAll('.color-brush').forEach(b => {
+            b.disabled = disabled;
+            b.style.pointerEvents = disabled ? 'none' : 'auto';
+        });
+
+        updateUndoRedoButtons();
+    }
+
+    function startPreview(animationId) {
+        if (animationState !== 'IDLE') stopAnimation();
+        
+        isPreviewing = true;
+        toggleControls(true);
+        savedDrawingsForPreview = JSON.stringify(getCurrentDrawing());
+        closeHelpGuide();
+        history[historyIndex] = [];
+        redrawCanvas();
+
+        const animData = Object.values(ANIMATION_GUIDE_DATA).flat().find(a => a.id === animationId);
+        
+        if (animData && animData.previewDraw) {
+            animData.previewDraw();
+            redrawCanvas();
+            mainButton.textContent = "Parar Preview";
+            mainButton.disabled = false;
+            mainButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            mainButton.classList.add('bg-purple-600', 'hover:bg-purple-700');
+            setTimeout(() => analyzeAndAnimate(animationId), 500);
+        }
+    }
+
+    function stopPreview() {
+        stopAnimation();
+        history[historyIndex] = savedDrawingsForPreview ? JSON.parse(savedDrawingsForPreview) : [];
+        savedDrawingsForPreview = null;
+        isPreviewing = false;
+        redrawCanvas();
+        mainButton.textContent = "Animar Doodle";
+        mainButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+        mainButton.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+        showMessage(getCurrentDrawing().length > 0 ? "Preview finalizado. Seu doodle foi restaurado." : "Preview finalizado.");
+        toggleControls(false);
+    }
+    
+    function autoDrawShape(shapes) {
+        const w = doodleCanvas.width;
+        const h = doodleCanvas.height;
+        let newStrokes = [];
+
+        shapes.forEach(s => {
+            const centerX = s.x * w, centerY = s.y * h, width = s.w * w, height = s.h * h;
+            let points = [];
+            switch (s.type) {
+                case 'circle': for (let i = 0; i <= 360; i += 10) { const rad = i * Math.PI / 180; points.push({ x: centerX + (width/2) * Math.cos(rad), y: centerY + (height/2) * Math.sin(rad) }); } break;
+                case 'line': points.push({x: centerX - width/2, y: centerY - height/2}); points.push({x: centerX + width/2, y: centerY + height/2}); break;
+                case 'rect': points.push({x:centerX-width/2,y:centerY-height/2},{x:centerX+width/2,y:centerY-height/2},{x:centerX+width/2,y:centerY+height/2},{x:centerX-width/2,y:centerY+height/2},{x:centerX-width/2,y:centerY-height/2}); break;
+                case 'heart': for (let i=0;i<=360;i++){const t=i*Math.PI/180;points.push({x:centerX+(width/2)*(16*Math.pow(Math.sin(t),3))/16,y:centerY-(height/2)*(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))/16})} break;
+                case 'star': for(let i=0;i<5;i++){const a=i*(2*Math.PI/5)-Math.PI/2;points.push({x:centerX+(width/2)*Math.cos(a),y:centerY+(height/2)*Math.sin(a)});const ia=a+Math.PI/5;points.push({x:centerX+(width/4)*Math.cos(ia),y:centerY+(height/4)*Math.sin(ia)})}points.push(points[0]);break;
+                case 'wave': for (let i=0;i<50;i++){const x=centerX-width/2+(i/49)*width;const y=centerY+Math.sin(i*.3)*(height/2);points.push({x,y})} break;
+            }
+            if(points.length > 0) newStrokes.push({ points, color: s.color, size: 8 });
+        });
+        history[historyIndex].push(...newStrokes);
+        redrawCanvas();
+    }
+    
+    function enterFocusMode() {
+        document.body.classList.add('focus-mode');
+        focusBackdrop.classList.remove('hidden');
+        focusControlsContainer.classList.remove('hidden');
+        focusPaletteContainer.appendChild(document.getElementById('color-palette'));
+        setTimeout(() => {
+            focusBackdrop.style.opacity = '1';
+            focusControlsContainer.classList.add('visible');
+        }, 10);
+    }
+    
+    function exitFocusMode() {
+        document.body.classList.remove('focus-mode');
+        focusBackdrop.style.opacity = '0';
+        focusControlsContainer.classList.remove('visible');
+        paletteContainer.appendChild(document.getElementById('color-palette'));
+        setTimeout(() => {
+            focusBackdrop.classList.add('hidden');
+            focusControlsContainer.classList.add('hidden');
+        }, 500);
+    }
+    
+    // --- Initialization Function ---
+    function init() {
+        
+        function setActiveColor(color) {
+            if (isPreviewing) return;
+            activeColor = color;
+            document.querySelectorAll('.color-brush').forEach(b => {
+                 b.classList.toggle('active', b.dataset.color === color);
+            });
+        }
+        
+        // Populate color palette
+        const colorPalette = document.getElementById('color-palette');
+        COLORS.forEach(color => {
+            const button = document.createElement('button');
+            button.className = 'color-brush w-8 h-8 rounded-full border-2 border-white dark:border-gray-800 shadow-md transition-transform transform hover:scale-110 focus:outline-none';
+            button.style.backgroundColor = color.hex;
+            button.dataset.color = color.hex;
+            button.title = color.hex;
+            button.addEventListener('click', () => setActiveColor(color.hex));
+            colorPalette.appendChild(button);
+        });
+
+        // Event Listeners
+        doodleCanvas.addEventListener('mousedown', startDrawing);
+        doodleCanvas.addEventListener('mousemove', draw);
+        doodleCanvas.addEventListener('mouseup', stopDrawing);
+        doodleCanvas.addEventListener('mouseleave', stopDrawing);
+        doodleCanvas.addEventListener('touchstart', startDrawing, { passive: false });
+        doodleCanvas.addEventListener('touchmove', draw, { passive: false });
+        doodleCanvas.addEventListener('touchend', stopDrawing);
+        doodleCanvas.addEventListener('touchcancel', stopDrawing);
+
+        mainButton.addEventListener('click', handleMainButtonClick);
+        clearButton.addEventListener('click', clearAll);
+        undoBtn.addEventListener('click', undo);
+        redoBtn.addEventListener('click', redo);
+        
+        focusModeBtn.addEventListener('click', enterFocusMode);
+        focusExitBtn.addEventListener('click', exitFocusMode);
+        focusMainActionBtn.addEventListener('click', handleMainButtonClick);
+        focusClearBtn.addEventListener('click', clearAll);
+        focusUndoBtn.addEventListener('click', undo);
+        focusRedoBtn.addEventListener('click', redo);
+        
+        settingsBtn.addEventListener('click', openSettings);
+        closeSettingsBtn.addEventListener('click', closeSettings);
+        settingsBackdrop.addEventListener('click', closeSettings);
+        savePngBtn.addEventListener('click', saveAsPNG);
+        saveDoodleBtn.addEventListener('click', saveAsDoodle);
+        loadDoodleInput.addEventListener('change', handleFileLoad);
+        
+        helpBtn.addEventListener('click', openHelpGuide);
+        closeHelpBtn.addEventListener('click', closeHelpGuide);
+        helpGuidePanel.addEventListener('click', (e) => { if(e.target === helpGuidePanel) closeHelpGuide() });
+        helpSearchInput.addEventListener('input', filterHelpGuide);
+
+        toggleToolsBtn.addEventListener('click', () => {
+            const isOpen = toolsArea.classList.toggle('open');
+            toolsArrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+        });
+        
+        confirmModalOk.addEventListener('click', () => {
+            hideConfirmModal();
+            proceedWithLoad();
+        });
+        confirmModalCancel.addEventListener('click', () => {
+            hideConfirmModal();
+            pendingFileToLoad = null;
+        });
+
+        brushSizeInput.addEventListener('input', (e) => {
+            brushSize = e.target.value;
+            brushSizeLabel.textContent = brushSize;
+        });
+        
+        darkModeToggle.addEventListener('change', (e) => setDarkMode(e.target.checked));
+        
+        autosaveToggle.addEventListener('change', e => {
+            localStorage.setItem('doodle-autosave', e.target.checked ? '1' : '0');
+            if (e.target.checked) saveDrawingToLocalStorage();
+        });
+
+        // Keyboard shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT') return;
+            if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
+            if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
+            if (e.ctrlKey && e.key === 'f') { e.preventDefault(); document.body.classList.contains('focus-mode') ? exitFocusMode() : enterFocusMode(); }
+            if (e.key === 'Escape') {
+                if (document.body.classList.contains('focus-mode')) exitFocusMode();
+                else if (settingsPanel.classList.contains('open')) closeSettings();
+                else if (helpGuidePanel.classList.contains('open')) closeHelpGuide();
+            }
+        });
+        
+        window.addEventListener('resize', resizeCanvas);
+
+        // Initial Setup
+        if (localStorage.getItem('doodle-dark') === '1') {
+            darkModeToggle.checked = true;
+            setDarkMode(true);
+        }
+        if (localStorage.getItem('doodle-autosave') === '1') {
+            autosaveToggle.checked = true;
+            loadDrawingFromLocalStorage();
+        }
+        
+        resizeCanvas();
+        setActiveColor(COLORS[0].hex);
+        updateUndoRedoButtons();
+        populateHelpGuide();
+    }
+    
+    // Run the app
+    init();
+});
+</script>
+
+</body>
+</html>
