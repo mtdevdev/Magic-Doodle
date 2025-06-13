@@ -89,4 +89,9 @@ The technology stack was chosen and implemented by **Gemini 2.5 Pro** based on m
 1. **Open** the `index.html` file (or the website) in any modern web browser.
 2. **Start drawing!**
 
-**Created by MTDev using Visual Studio and Gemini 2.5 Pro, this repository is free to use under the CC0 1.0 Universal (Public Domain) license.**
+---
+
+<p align="center">
+  Created and refined by <strong>MTDev</strong> using <strong>Google AI Studio</strong> (Gemini 2.5 Pro).<br>
+  This repository is free to use under the CC0 1.0 Universal (Public Domain) license.
+</p>
