@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="/images/magicdoodle.png" alt="magic doodle logo" width="100">
+  <img src="/github/magicdoodle.png" alt="magic doodle logo" width="100">
 </p>
 
 <h1 align="center">Magic Doodle</h1>
